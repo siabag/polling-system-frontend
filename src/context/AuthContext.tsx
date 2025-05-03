@@ -32,7 +32,7 @@ export const AuthContext = createContext<AuthContextType>({
 
 // Tipos de acciones para el reducer
 type AuthAction =
-  | { type: 'LOGIN_SUCCESS'; payload: { user: User } }
+  | { type: 'LOGIN_SUCCESS'; payload: { user: User | undefined } }
   | { type: 'REGISTER_SUCCESS' }
   | { type: 'AUTH_ERROR'; payload: string }
   | { type: 'USER_LOADED'; payload: User }
@@ -49,7 +49,7 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
       return {
         ...state,
         isAuthenticated: true,
-        user: action.payload.user,
+        user: action.payload.user || null,
         loading: false,
         error: null,
       };
@@ -132,12 +132,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     loadUser();
   }, []);
 
-  // Efecto para manejar redirecciones basadas en estado de autenticación
   useEffect(() => {
-    // Este log nos ayuda a entender si este efecto se está disparando
     console.log("Auth state changed - isAuthenticated:", state.isAuthenticated);
     
-    // Si estamos en una ruta protegida y no estamos autenticados, redirigir a login
     if (typeof window !== 'undefined') {
       const path = window.location.pathname;
       console.log("Current path:", path);
@@ -145,7 +142,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Si estamos autenticados pero en una página de acceso público
       if (state.isAuthenticated && (path === '/login' || path === '/register')) {
         console.log("Authenticated user in public page, redirecting to dashboard");
-        // Pequeño timeout para asegurar que el estado se ha actualizado correctamente
         setTimeout(() => {
           router.push('/dashboard');
         }, 100);
@@ -165,7 +161,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const data = response.data as LoginResponse;
       
-      setAuthToken(data.token);
+      setAuthToken(data.access_token);
       dispatch({ type: 'LOGIN_SUCCESS', payload: { user: data.user } });
       
       // Redirigir explícitamente después del login

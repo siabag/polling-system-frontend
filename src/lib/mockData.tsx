@@ -50,7 +50,7 @@ export const mockUsers: User[] = [
 
 // Credenciales válidas para pruebas
 export const validCredentials: { [email: string]: string } = {
-  'admin@sistema.com': 'Admin123',
+  'admin@sistema.com': 'admin123',
   'juan@ejemplo.com': 'Juan123',
   'maria@ejemplo.com': 'Maria123',
   'carlos@ejemplo.com': 'Carlos123',

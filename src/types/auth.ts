@@ -29,8 +29,8 @@ export interface AuthCredentials {
   }
   
   export interface LoginResponse {
-    token: string;
-    user: User;
+    access_token: string;
+    user?: User;
   }
   
   export interface RegisterUserData {

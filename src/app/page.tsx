@@ -36,7 +36,7 @@ export default function Home() {
             Puedes iniciar sesión con las siguientes credenciales:
           </p>
           <ul className="text-left mt-3">
-            <li><strong>Administrador:</strong> admin@sistema.com / Admin123</li>
+            <li><strong>Administrador:</strong> admin@sistema.com / admin123</li>
             <li><strong>Encuestador:</strong> juan@ejemplo.com / Juan123</li>
             <li><strong>Analista:</strong> maria@ejemplo.com / Maria123</li>
           </ul>

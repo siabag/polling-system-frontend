@@ -177,7 +177,7 @@ const LoginForm = () => {
         <Box sx={{ width: '100%', mb: 2 }}>
           <Alert severity="info" sx={{ mb: 2 }}>
             <Typography variant="caption">
-              Para pruebas: admin@sistema.com / Admin123
+              Para pruebas: admin@sistema.com / admin123
             </Typography>
           </Alert>
         </Box>
@@ -234,7 +234,7 @@ const LoginForm = () => {
           <Box sx={{ mt: 2, mb: 2 }}>
             <Button
               size="small"
-              onClick={() => handleQuickLogin('admin@sistema.com', 'Admin123')}
+              onClick={() => handleQuickLogin('admin@sistema.com', 'admin123')}
               sx={{ mr: 1 }}
             >
               Admin

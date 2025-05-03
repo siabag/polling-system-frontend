@@ -12,11 +12,9 @@ const api = axios.create({
   },
 });
 
-
 // Interceptor para agregar el token de autenticación a las peticiones
 api.interceptors.request.use(
   (config) => {
-    // Obtener el token del localStorage (solo en el cliente)
     if (typeof window !== 'undefined') {
       const token = localStorage.getItem('token');
       if (token && config.headers) {
@@ -38,11 +36,9 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Si el error es 401 (Unauthorized) y no es un reintento
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
-      // Redirigir al usuario a la página de login si el token expiró
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         window.location.href = '/login?expired=true';
@@ -50,27 +46,23 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Para otros errores, simplemente rechazar la promesa
     return Promise.reject(error);
   }
 );
 
-// Funciones de utilidad para endpoints comunes
 
 // Wrapper para manejar la API real o el mock
 const apiWrapper = {
   // Auth endpoints
   auth: {
-    login: async (email: string, password: string) => {
+    login: async (correo: string, contrasena: string) => {
       if (USE_MOCK_API) {
         try {
-          const response = await mockApi.login(email, password);
+          const response = await mockApi.login(correo, contrasena);
           return { data: response, status: 200 };
         } catch (error) {
-          // Aquí es donde debemos preservar el mensaje original
           console.error("Error original en login mock:", error);
           
-          // Crear un error de tipo AxiosError similar al que devolvería axios
           const axiosLikeError = { 
             response: { 
               data: { 
@@ -85,10 +77,18 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/login', { email, password });
+      return api.post('/auth/login', { correo, contrasena });
     },
     
     register: async (userData: any) => {
+      // Adaptar los nombres de campos para el registro si es necesario
+      const payload = {
+        correo: userData.email,
+        contrasena: userData.password,
+        // ... otros campos según lo requiera el backend
+        ...userData
+      };
+      
       if (USE_MOCK_API) {
         try {
           await mockApi.register(userData);
@@ -108,13 +108,13 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/register', userData);
+      return api.post('/auth/register', payload);
     },
     
-    forgotPassword: async (email: string) => {
+    forgotPassword: async (correo: string) => {
       if (USE_MOCK_API) {
         try {
-          await mockApi.forgotPassword(email);
+          await mockApi.forgotPassword(correo);
           return { data: null, status: 200 };
         } catch (error) {
           const axiosLikeError = { 
@@ -131,13 +131,13 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/forgot-password', { email });
+      return api.post('/auth/forgot-password', { correo });
     },
     
-    resetPassword: async (token: string, password: string) => {
+    resetPassword: async (token: string, contrasena: string) => {
       if (USE_MOCK_API) {
         try {
-          await mockApi.resetPassword(token, password);
+          await mockApi.resetPassword(token, contrasena);
           return { data: null, status: 200 };
         } catch (error) {
           const axiosLikeError = { 
@@ -154,7 +154,7 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/reset-password', { token, password });
+      return api.post('/auth/reset-password', { token, contrasena });
     },
     
     me: async () => {
@@ -229,7 +229,6 @@ const apiWrapper = {
       return api.get('/users', { params });
     },
     
-    // Resto de métodos actualizados de manera similar...
     getById: async (id: number) => {
       if (USE_MOCK_API) {
         try {
@@ -254,6 +253,13 @@ const apiWrapper = {
     },
     
     create: async (userData: any) => {
+      // Adaptar los nombres de campos si es necesario
+      const payload = {
+        correo: userData.email,
+        contrasena: userData.password,
+        ...userData
+      };
+      
       if (USE_MOCK_API) {
         try {
           const newUser = await mockApi.createUser(userData);
@@ -273,10 +279,16 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/users', userData);
+      return api.post('/users', payload);
     },
     
     update: async (id: number, userData: any) => {
+      // Adaptar los nombres de campos si es necesario
+      const payload = {
+        correo: userData.email,
+        ...userData
+      };
+      
       if (USE_MOCK_API) {
         try {
           const updatedUser = await mockApi.updateUser(id, userData);
@@ -296,7 +308,7 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.put(`/users/${id}`, userData);
+      return api.put(`/users/${id}`, payload);
     },
     
     delete: async (id: number) => {
@@ -323,6 +335,12 @@ const apiWrapper = {
     },
     
     changePassword: async (id: number, passwordData: any) => {
+      // Adaptar los nombres de campos para el cambio de contraseña
+      const payload = {
+        contrasenaActual: passwordData.currentPassword,
+        nuevaContrasena: passwordData.newPassword
+      };
+      
       if (USE_MOCK_API) {
         try {
           await mockApi.changeUserPassword(id, passwordData);
@@ -342,7 +360,7 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post(`/users/${id}/change-password`, passwordData);
+      return api.post(`/users/${id}/change-password`, payload);
     },
     
     getRoles: async () => {
