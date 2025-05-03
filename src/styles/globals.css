@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 255 255 255;  /* Blanco en RGB */
+    --foreground: 23 23 23;     /* Casi negro en RGB */
+  }
+
+  .dark {
+    --background: 10 10 10;     /* Casi negro en RGB */
+    --foreground: 237 237 237;  /* Casi blanco en RGB */
+  }
+}
+
+body {
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+  background-color: #f5f5f5;
+}
