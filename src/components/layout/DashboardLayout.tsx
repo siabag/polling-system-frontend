@@ -1,180 +1,446 @@
-import React, { useState } from 'react';
-import Head from 'next/head';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+'use client';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import useAuth from '@/src/hooks/useAuth';
 import {
-  Bars3Icon,
-  XMarkIcon,
-  HomeIcon,
-  UsersIcon,
-  ChartBarIcon,
-  DocumentTextIcon,
-  ArrowLeftIcon,
-} from '@heroicons/react/24/outline';
-import useAuth from '../../hooks/useAuth';
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
+  Button,
+  Badge,
+  useTheme,
+  useMediaQuery,
+  CircularProgress,
+  Container,
+  Popper,
+  Grow,
+  Paper,
+  MenuList,
+  ClickAwayListener,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from '@mui/material';
+import {
+  Dashboard as DashboardIcon,
+  Assignment as AssignmentIcon,
+  Terrain as TerrainIcon,
+  Settings as SettingsIcon,
+  Assessment as AssessmentIcon,
+  Person as PersonIcon,
+  ExitToApp as LogoutIcon,
+  Add as AddIcon,
+  List as ListIcon,
+  Category as CategoryIcon,
+  Menu as MenuIcon,
+  ArrowDropDown as ArrowDropDownIcon,
+} from '@mui/icons-material';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
-  const { user, logout } = useAuth();
+const DashboardLayout = ({ children }:DashboardLayoutProps) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [encuestasOpen, setEncuestasOpen] = useState(false);
+  const [adminOpen, setAdminOpen] = useState(false);
+  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
+  const encuestasAnchorRef = React.useRef<HTMLButtonElement>(null);
+  const adminAnchorRef = React.useRef<HTMLButtonElement>(null);
+  
+  const { user, logout, isAuthenticated, loading } = useAuth();
   const router = useRouter();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Navegar a la página de login después de cerrar sesión
+  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleProfileMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const handleLogout = () => {
+    handleProfileMenuClose();
     logout();
-    router.push('/login');
   };
 
-  // Verificar si la ruta actual coincide con la ruta del enlace
-  const isActive = (path: string) => {
-    return router.pathname === path || router.pathname.startsWith(`${path}/`);
+  const handleNavigate = (path: string) => {
+    setEncuestasOpen(false);
+    setAdminOpen(false);
+    setMobileMenuAnchor(null);
+    router.push(path);
   };
 
-  // Clase para los enlaces activos
-  const activeLinkClass = 'bg-primary-700 text-white';
-  const inactiveLinkClass = 'text-gray-300 hover:bg-primary-700 hover:text-white';
+  const handleToggleEncuestas = () => {
+    setEncuestasOpen((prevOpen) => !prevOpen);
+    setAdminOpen(false);
+  };
 
-  // Navegación principal
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, allowedRoles: ['administrador', 'encuestador', 'analista'] },
-    { name: 'Encuestas', href: '/surveys', icon: DocumentTextIcon, allowedRoles: ['administrador', 'encuestador', 'analista'] },
-    { name: 'Estadísticas', href: '/statistics', icon: ChartBarIcon, allowedRoles: ['administrador', 'analista'] },
-    { name: 'Usuarios', href: '/users', icon: UsersIcon, allowedRoles: ['administrador'] },
-  ];
+  const handleToggleAdmin = () => {
+    setAdminOpen((prevOpen) => !prevOpen);
+    setEncuestasOpen(false);
+  };
 
-  // Filtrar navegación según rol del usuario
-  const filteredNavigation = navigation.filter(item => 
-    user && item.allowedRoles.includes(user.role.name)
-  );
+  const handleClose = (event: Event) => {
+    if (
+      encuestasAnchorRef.current &&
+      encuestasAnchorRef.current.contains(event.target as HTMLElement)
+    ) {
+      return;
+    }
+    if (
+      adminAnchorRef.current &&
+      adminAnchorRef.current.contains(event.target as HTMLElement)
+    ) {
+      return;
+    }
+    setEncuestasOpen(false);
+    setAdminOpen(false);
+  };
+
+  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setMobileMenuAnchor(event.currentTarget);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuAnchor(null);
+  };
+
+  // Proteger ruta
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, loading, router]);
+
+  // Si está cargando o no está autenticado, mostrar loading
+  if (loading || !isAuthenticated || !user) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const isAdmin = user?.rol === 'administrador';
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Head>
-        <title>Sistema de Encuestas - Café</title>
-      </Head>
-
-      {/* Sidebar móvil */}
-      <div className={`fixed inset-0 flex z-40 md:hidden ${sidebarOpen ? 'block' : 'hidden'}`} role="dialog" aria-modal="true">
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-75" aria-hidden="true" onClick={() => setSidebarOpen(false)}></div>
-        <div className="relative flex-1 flex flex-col max-w-xs w-full bg-primary-800">
-          <div className="absolute top-0 right-0 -mr-12 pt-2">
-            <button
-              type="button"
-              className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <span className="sr-only">Cerrar sidebar</span>
-              <XMarkIcon className="h-6 w-6 text-white" />
-            </button>
-          </div>
-          <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
-            <div className="flex-shrink-0 flex items-center px-4">
-              <span className="text-xl font-bold text-white">Encuestas Café</span>
-            </div>
-            <nav className="mt-5 px-2 space-y-1">
-              {filteredNavigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-base font-medium rounded-md ${
-                    isActive(item.href) ? activeLinkClass : inactiveLinkClass
-                  }`}
-                >
-                  <item.icon className="mr-4 h-6 w-6" aria-hidden="true" />
-                  {item.name}
-                </Link>
-              ))}
-            </nav>
-          </div>
-          <div className="flex-shrink-0 flex border-t border-primary-700 p-4">
-            <div className="flex-shrink-0 group block">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-primary-600 text-white font-bold">
-                  {user ? user.firstName[0] + user.lastName[0] : 'U'}
-                </div>
-                <div className="ml-3">
-                  <p className="text-base font-medium text-white">
-                    {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
-                  </p>
-                  <p className="text-sm font-medium text-primary-300">
-                    {user ? user.role.name : ''}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Sidebar escritorio */}
-      <div className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0">
-        <div className="flex-1 flex flex-col min-h-0 bg-primary-800">
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
-              <span className="text-xl font-bold text-white">Encuestas Café</span>
-            </div>
-            <nav className="mt-5 flex-1 px-2 space-y-1">
-              {filteredNavigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className={`group flex items-center px-2 py-2 text-sm font-medium rounded-md ${
-                    isActive(item.href) ? activeLinkClass : inactiveLinkClass
-                  }`}
-                >
-                  <item.icon className="mr-3 h-6 w-6" aria-hidden="true" />
-                  {item.name}
-                </Link>
-              ))}
-              <button
-                onClick={handleLogout}
-                className="w-full group flex items-center px-2 py-2 text-sm font-medium rounded-md text-gray-300 hover:bg-primary-700 hover:text-white"
-              >
-                <ArrowLeftIcon className="mr-3 h-6 w-6" aria-hidden="true" />
-                Cerrar sesión
-              </button>
-            </nav>
-          </div>
-          <div className="flex-shrink-0 flex border-t border-primary-700 p-4">
-            <div className="flex-shrink-0 w-full group block">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-primary-600 text-white font-bold">
-                  {user ? user.firstName[0] + user.lastName[0] : 'U'}
-                </div>
-                <div className="ml-3">
-                  <p className="text-sm font-medium text-white">
-                    {user ? `${user.firstName} ${user.lastName}` : 'Usuario'}
-                  </p>
-                  <p className="text-xs font-medium text-primary-300">
-                    {user ? user.role.name : ''}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Contenido principal */}
-      <div className="md:pl-64 flex flex-col flex-1">
-        <div className="sticky top-0 z-10 md:hidden pl-1 pt-1 sm:pl-3 sm:pt-3 bg-gray-100">
-          <button
-            type="button"
-            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
-            onClick={() => setSidebarOpen(true)}
+    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+        <Toolbar>
+          {/* Logo */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              cursor: 'pointer',
+              mr: 4,
+            }}
+            onClick={() => handleNavigate('/dashboard')}
           >
-            <span className="sr-only">Abrir sidebar</span>
-            <Bars3Icon className="h-6 w-6" aria-hidden="true" />
-          </button>
-        </div>
-        <main className="flex-1">
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: '50%',
+                backgroundColor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'primary.main',
+                fontWeight: 'bold',
+                mr: 1,
+              }}
+            >
+              EC
+            </Box>
+            <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
+              Encuestas Café
+            </Typography>
+          </Box>
+
+          {/* Desktop Menu */}
+          {!isMobile && (
+            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+              <Button
+                color="inherit"
+                startIcon={<DashboardIcon />}
+                onClick={() => handleNavigate('/dashboard')}
+              >
+                Dashboard
+              </Button>
+
+              <Button
+                ref={encuestasAnchorRef}
+                color="inherit"
+                startIcon={<AssignmentIcon />}
+                endIcon={<ArrowDropDownIcon />}
+                onClick={handleToggleEncuestas}
+              >
+                Encuestas
+              </Button>
+              <Popper
+                open={encuestasOpen}
+                anchorEl={encuestasAnchorRef.current}
+                role={undefined}
+                placement="bottom-start"
+                transition
+                disablePortal
+              >
+                {({ TransitionProps, placement }) => (
+                  <Grow
+                    {...TransitionProps}
+                    style={{
+                      transformOrigin:
+                        placement === 'bottom-start' ? 'left top' : 'left bottom',
+                    }}
+                  >
+                    <Paper>
+                      <ClickAwayListener onClickAway={(event) => handleClose(event as any)}>
+                        <MenuList>
+                          <MenuItem onClick={() => handleNavigate('/dashboard/encuestas/nueva')}>
+                            <ListItemIcon>
+                              <AddIcon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>Nueva Encuesta</ListItemText>
+                          </MenuItem>
+                          <MenuItem onClick={() => handleNavigate('/dashboard/encuestas')}>
+                            <ListItemIcon>
+                              <ListIcon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText>Mis Encuestas</ListItemText>
+                          </MenuItem>
+                        </MenuList>
+                      </ClickAwayListener>
+                    </Paper>
+                  </Grow>
+                )}
+              </Popper>
+
+              <Button
+                color="inherit"
+                startIcon={<TerrainIcon />}
+                onClick={() => handleNavigate('/dashboard/fincas')}
+              >
+                Fincas
+              </Button>
+
+              {isAdmin && (
+                <>
+                  <Button
+                    ref={adminAnchorRef}
+                    color="inherit"
+                    startIcon={<SettingsIcon />}
+                    endIcon={<ArrowDropDownIcon />}
+                    onClick={handleToggleAdmin}
+                  >
+                    Administración
+                  </Button>
+                  <Popper
+                    open={adminOpen}
+                    anchorEl={adminAnchorRef.current}
+                    role={undefined}
+                    placement="bottom-start"
+                    transition
+                    disablePortal
+                  >
+                    {({ TransitionProps, placement }) => (
+                      <Grow
+                        {...TransitionProps}
+                        style={{
+                          transformOrigin:
+                            placement === 'bottom-start' ? 'left top' : 'left bottom',
+                        }}
+                      >
+                        <Paper>
+                          <ClickAwayListener onClickAway={(event) => handleClose(event as any)}>
+                            <MenuList>
+                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/factores')}>
+                                <ListItemIcon>
+                                  <CategoryIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Factores</ListItemText>
+                              </MenuItem>
+                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/usuarios')}>
+                                <ListItemIcon>
+                                  <PersonIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>Usuarios</ListItemText>
+                              </MenuItem>
+                            </MenuList>
+                          </ClickAwayListener>
+                        </Paper>
+                      </Grow>
+                    )}
+                  </Popper>
+                </>
+              )}
+            </Box>
+          )}
+
+          {/* Mobile menu button */}
+          {isMobile && (
+            <Box sx={{ flexGrow: 1 }}>
+              <IconButton
+                color="inherit"
+                onClick={handleMobileMenuOpen}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
+          )}
+
+          {/* Profile Section */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              size="large"
+              edge="end"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleProfileMenuOpen}
+              color="inherit"
+            >
+              <Avatar sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}>
+                {user.nombre?.charAt(0)}{user.apellido?.charAt(0)}
+              </Avatar>
+            </IconButton>
+          </Box>
+          
+          {/* Profile Menu */}
+          <Menu
+            id="menu-appbar"
+            anchorEl={anchorEl}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            keepMounted
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+            open={Boolean(anchorEl)}
+            onClose={handleProfileMenuClose}
+          >
+            <MenuItem disabled>
+              <Typography variant="subtitle2">
+                {user.nombre} {user.apellido}
+              </Typography>
+            </MenuItem>
+            <MenuItem disabled>
+              <Typography variant="caption" color="text.secondary">
+                {user.rol}
+              </Typography>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={() => { handleProfileMenuClose(); router.push('/dashboard/perfil'); }}>
+              <ListItemIcon>
+                <PersonIcon fontSize="small" />
+              </ListItemIcon>
+              Mi Perfil
+            </MenuItem>
+            <MenuItem onClick={handleLogout}>
+              <ListItemIcon>
+                <LogoutIcon fontSize="small" />
+              </ListItemIcon>
+              Cerrar Sesión
+            </MenuItem>
+          </Menu>
+
+          {/* Mobile Navigation Menu */}
+          <Menu
+            anchorEl={mobileMenuAnchor}
+            open={Boolean(mobileMenuAnchor)}
+            onClose={handleMobileMenuClose}
+          >
+            <MenuItem onClick={() => handleNavigate('/dashboard')}>
+              <ListItemIcon>
+                <DashboardIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Dashboard</ListItemText>
+            </MenuItem>
+            <Divider />
+            <MenuItem disabled>
+              <Typography variant="subtitle2" color="text.secondary">
+                Encuestas
+              </Typography>
+            </MenuItem>
+            <MenuItem onClick={() => handleNavigate('/dashboard/encuestas/nueva')}>
+              <ListItemIcon>
+                <AddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Nueva Encuesta</ListItemText>
+            </MenuItem>
+            <MenuItem onClick={() => handleNavigate('/dashboard/encuestas')}>
+              <ListItemIcon>
+                <ListIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Mis Encuestas</ListItemText>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={() => handleNavigate('/dashboard/fincas')}>
+              <ListItemIcon>
+                <TerrainIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Fincas</ListItemText>
+            </MenuItem>
+            {isAdmin && (
+              <>
+                <Divider />
+                <MenuItem disabled>
+                  <Typography variant="subtitle2" color="text.secondary">
+                    Administración
+                  </Typography>
+                </MenuItem>
+                <MenuItem onClick={() => handleNavigate('/dashboard/admin/factores')}>
+                  <ListItemIcon>
+                    <CategoryIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Factores</ListItemText>
+                </MenuItem>
+                <MenuItem onClick={() => handleNavigate('/dashboard/admin/usuarios')}>
+                  <ListItemIcon>
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText>Usuarios</ListItemText>
+                </MenuItem>
+              </>
+            )}
+          </Menu>
+        </Toolbar>
+      </AppBar>
+
+      {/* Main Content */}
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          mt: 8, // Para dar espacio al AppBar
+          backgroundColor: '#f5f5f5',
+          minHeight: 'calc(100vh - 64px)',
+        }}
+      >
+        <Container maxWidth="xl">
           {children}
-        </main>
-      </div>
-    </div>
+        </Container>
+      </Box>
+    </Box>
   );
 };
 

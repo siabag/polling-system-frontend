@@ -12,44 +12,36 @@ export const mockRoles: Role[] = [
 export const mockUsers: User[] = [
   {
     id: 1,
-    firstName: 'Admin',
-    lastName: 'Sistema',
-    email: 'admin@sistema.com',
-    role: mockRoles[0],
-    active: true,
-    createdAt: '2023-01-01T00:00:00Z',
+    nombre: 'Admin',
+    apellido: 'Sistema',
+    correo: 'admin@sistema.com',
+    rol: mockRoles[0].name
   },
   {
     id: 2,
-    firstName: 'Juan',
-    lastName: 'Pérez',
-    email: 'juan@ejemplo.com',
-    role: mockRoles[1],
-    active: true,
-    createdAt: '2023-01-02T00:00:00Z',
+    nombre: 'Juan',
+    apellido: 'Pérez',
+    correo: 'juan@ejemplo.com',
+    rol: mockRoles[1].name
   },
   {
     id: 3,
-    firstName: 'María',
-    lastName: 'López',
-    email: 'maria@ejemplo.com',
-    role: mockRoles[2],
-    active: true,
-    createdAt: '2023-01-03T00:00:00Z',
+    nombre: 'María',
+    apellido: 'López',
+    correo: 'maria@ejemplo.com',
+    rol: mockRoles[2].name
   },
   {
     id: 4,
-    firstName: 'Carlos',
-    lastName: 'González',
-    email: 'carlos@ejemplo.com',
-    role: mockRoles[1],
-    active: false,
-    createdAt: '2023-01-04T00:00:00Z',
+    nombre: 'Carlos',
+    apellido: 'González',
+    correo: 'carlos@ejemplo.com',
+    rol: mockRoles[1].name
   },
 ];
 
 // Credenciales válidas para pruebas
-export const validCredentials: { [email: string]: string } = {
+export const validCredentials: { [correo: string]: string } = {
   'admin@sistema.com': 'admin123',
   'juan@ejemplo.com': 'Juan123',
   'maria@ejemplo.com': 'Maria123',
@@ -66,9 +58,9 @@ let nextUserId = mockUsers.length + 1;
 
 // Funciones auxiliares para manipular los datos
 
-// Buscar usuario por email
-export const findUserByEmail = (email: string): User | undefined => {
-  return mockUsers.find(user => user.email === email);
+// Buscar usuario por correo
+export const findUserBycorreo = (correo: string): User | undefined => {
+  return mockUsers.find(user => user.correo === correo);
 };
 
 // Buscar usuario por ID
@@ -77,8 +69,8 @@ export const findUserById = (id: number): User | undefined => {
 };
 
 // Verificar credenciales
-export const verifyCredentials = (email: string, password: string): boolean => {
-  return validCredentials[email] === password;
+export const verifyCredentials = (correo: string, password: string): boolean => {
+  return validCredentials[correo] === password;
 };
 
 // Crear nuevo usuario
@@ -91,12 +83,10 @@ export const createUser = (userData: CreateUserData): User => {
   
   const newUser: User = {
     id: nextUserId++,
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    email: userData.email,
-    role: role,
-    active: userData.active !== undefined ? userData.active : true,
-    createdAt: new Date().toISOString(),
+    nombre: userData.firstName,
+    apellido: userData.lastName,
+    correo: userData.email,
+    rol: role.name
   };
   
   // Agregar a la lista de usuarios
@@ -117,24 +107,23 @@ export const updateUser = (id: number, userData: UpdateUserData): User | null =>
   }
   
   const user = mockUsers[userIndex];
-  let updatedRole = user.role;
+  let updatedRole = user.rol;
   
   // Actualizar rol si es necesario
   if (userData.roleId) {
     const role = mockRoles.find(role => role.id === userData.roleId);
     if (role) {
-      updatedRole = role;
+      updatedRole = role.name;
     }
   }
   
   // Actualizar usuario
   const updatedUser: User = {
     ...user,
-    firstName: userData.firstName || user.firstName,
-    lastName: userData.lastName || user.lastName,
-    email: userData.email || user.email,
-    role: updatedRole,
-    active: userData.active !== undefined ? userData.active : user.active,
+    nombre: userData.firstName || user.nombre,
+    apellido: userData.lastName || user.apellido,
+    correo: userData.email || user.correo,
+    rol: updatedRole
   };
   
   // Reemplazar en la lista
@@ -161,23 +150,18 @@ export const getUsers = (filters?: any) => {
   let filteredUsers = [...mockUsers];
   
   if (filters?.roleId) {
-    filteredUsers = filteredUsers.filter(user => user.role.id === Number(filters.roleId));
+    filteredUsers = filteredUsers.filter(user => user.rol === filters.roleId);
   }
   
-  // Filtrar por estado
-  if (filters?.active !== undefined) {
-    const active = filters.active === 'true' || filters.active === true;
-    filteredUsers = filteredUsers.filter(user => user.active === active);
-  }
   
   // Filtrar por búsqueda
   if (filters?.search) {
     const search = filters.search.toLowerCase();
     filteredUsers = filteredUsers.filter(
       user => 
-        user.firstName.toLowerCase().includes(search) ||
-        user.lastName.toLowerCase().includes(search) ||
-        user.email.toLowerCase().includes(search)
+        user.nombre.toLowerCase().includes(search) ||
+        user.apellido.toLowerCase().includes(search) ||
+        user.correo.toLowerCase().includes(search)
     );
   }
   

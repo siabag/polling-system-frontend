@@ -85,7 +85,8 @@ const apiWrapper = {
       const payload = {
         correo: userData.email,
         contrasena: userData.password,
-        // ... otros campos según lo requiera el backend
+        nombre: userData.firstName,
+        apellido: userData.lastName,
         ...userData
       };
       

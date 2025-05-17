@@ -2,8 +2,8 @@ import { LoginResponse, AuthCredentials, RegisterUserData } from '../types/auth'
 import { CreateUserData, UpdateUserData, ChangePasswordData, UserFilters } from '../types/user';
 import { 
   mockUsers, 
-  mockRoles, 
-  findUserByEmail, 
+  mockRoles,
+  findUserBycorreo,
   findUserById, 
   verifyCredentials, 
   generateToken, 
@@ -22,7 +22,7 @@ export class MockApi {
   async login(email: string, password: string): Promise<LoginResponse> {
     await delay();
     
-    const user = findUserByEmail(email);
+    const user = findUserBycorreo(email);
     console.log("mock api - login");
     console.log("mock api - user:",user);
 
@@ -31,14 +31,14 @@ export class MockApi {
       throw new Error('Credenciales incorrectas');
     }
     
-    if (!user.active) {
+    if (!user) {
       throw new Error('Usuario inactivo. Contacte al administrador.');
     }
     
     const token = generateToken(user.id);
     
     return {
-      token,
+      access_token: token,
       user,
     };
   }
@@ -46,7 +46,7 @@ export class MockApi {
   async register(userData: RegisterUserData): Promise<void> {
     await delay();
     
-    const existingUser = findUserByEmail(userData.email);
+    const existingUser = findUserBycorreo(userData.email);
     
     if (existingUser) {
       throw new Error('El correo electrónico ya está registrado');
@@ -58,14 +58,13 @@ export class MockApi {
       email: userData.email,
       password: userData.password,
       roleId: userData.roleId,
-      active: true,
     });
   }
   
   async forgotPassword(email: string): Promise<void> {
     await delay();
     
-    const user = findUserByEmail(email);
+    const user = findUserBycorreo(email);
     
     if (!user) {
       // Por seguridad, no informamos si el correo existe o no
@@ -130,7 +129,7 @@ export class MockApi {
   async createUser(userData: CreateUserData): Promise<any> {
     await delay();
     
-    const existingUser = findUserByEmail(userData.email);
+    const existingUser = findUserBycorreo(userData.email);
     
     if (existingUser) {
       throw new Error('El correo electrónico ya está registrado');
@@ -145,7 +144,7 @@ export class MockApi {
     
     // Verificar si estamos actualizando el email y ya existe
     if (userData.email) {
-      const existingUser = findUserByEmail(userData.email);
+      const existingUser = findUserBycorreo(userData.email);
       
       if (existingUser && existingUser.id !== id) {
         throw new Error('El correo electrónico ya está registrado por otro usuario');

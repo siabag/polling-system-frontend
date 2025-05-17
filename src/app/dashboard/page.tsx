@@ -83,14 +83,14 @@ const DashboardPage = () => {
                 mr: 2
               }}
             >
-              {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+              {user.nombre.charAt(0)}{user.apellido.charAt(0)}
             </Avatar>
             <Box>
               <Typography variant="h4">
-                Bienvenido, {user.firstName} {user.lastName}
+                Bienvenido, {user.nombre} {user.apellido}
               </Typography>
               <Typography variant="subtitle1" color="text.secondary">
-                {user.email}
+                {user.correo}
               </Typography>
             </Box>
           </Box>
@@ -102,13 +102,10 @@ const DashboardPage = () => {
               Información del usuario:
             </Typography>
             <Typography>
-              <strong>Rol:</strong> {user.role.name}
+              <strong>Rol:</strong> {user.rol}
             </Typography>
             <Typography>
-              <strong>Descripción del rol:</strong> {user.role.description}
-            </Typography>
-            <Typography>
-              <strong>Estado:</strong> {user.active ? 'Activo' : 'Inactivo'}
+              <strong>Correo:</strong> {user.correo}
             </Typography>
           </Box>
           
@@ -123,7 +120,7 @@ const DashboardPage = () => {
           </Box>
         </Paper>
         
-        <Box sx={{ mt: 4 }}>
+        {/* <Box sx={{ mt: 4 }}>
           <Typography variant="h5" gutterBottom>
             Acciones disponibles
           </Typography>
@@ -132,7 +129,7 @@ const DashboardPage = () => {
               Esta es una página de dashboard de prueba.
             </Typography>
           </Paper>
-        </Box>
+        </Box> */}
       </Box>
     </Container>
   );
