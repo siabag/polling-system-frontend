@@ -25,12 +25,12 @@ export interface Finca {
   id: number;
   nombre: string;
   ubicacion: string;
-  latitud: number;
-  longitud: number;
+  latitud: number | string | null;
+  longitud: number | string | null;
   propietario: string;
   usuario_id: number;
   usuario?: Usuario;
-  created_at?: string;
+  created_at?: string | undefined;
   updated_at?: string;
 }
 
@@ -166,16 +166,16 @@ export interface UpdateUsuarioData {
 export interface CreateFincaData {
   nombre: string;
   ubicacion: string;
-  latitud: number;
-  longitud: number;
+  latitud?: number | null;
+  longitud?: number| null;
   propietario: string;
 }
 
 export interface UpdateFincaData {
   nombre?: string;
   ubicacion?: string;
-  latitud?: number;
-  longitud?: number;
+  latitud?: number | null;
+  longitud?: number | null;
   propietario?: string;
 }
 

@@ -10,7 +10,8 @@ import {
   CreateFincaData,
   UpdateFincaData,
   EncuestaFilters,
-  FactorFilters
+  FactorFilters,
+  FincaFilters
 } from '../types/survey';
 
 const USE_MOCK_API = true; // Cambiar a false cuando tengas el backend real
@@ -36,7 +37,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get('/tipos-encuesta');
+    const response = await api.get('/api/tipos-encuesta');
+    return response.data;
   },
 
   async getTipoEncuestaById(id: number) {
@@ -58,7 +60,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get(`/tipos-encuesta/${id}`);
+    const response = await api.get(`/api/tipos-encuesta/${id}`);
+    return response.data;
   },
 
   // Factores
@@ -81,7 +84,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get('/factores', { params });
+    const response = await api.get('/api/factors', { params });
+    return response.data;
   },
 
   async getFactorById(id: number) {
@@ -103,7 +107,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get(`/factores/${id}`);
+    const response = await api.get(`/api/factors/${id}`);
+    return response.data;
   },
 
   async createFactor(data: CreateFactorData) {
@@ -125,7 +130,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.post('/factores', data);
+    const response = await api.post('/api/factors', data);
+    return response.data;
   },
 
   async updateFactor(id: number, data: UpdateFactorData) {
@@ -147,11 +153,12 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.put(`/factores/${id}`, data);
+    const response = await api.put(`/api/factors/${id}`, data);
+    return response.data;
   },
 
   // Fincas
-  async getFincas(params?: any) {
+  async getFincas(params?: FincaFilters) {
     if (USE_MOCK_API) {
       try {
         const data = await surveyMockApi.getFincas(params);
@@ -170,7 +177,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get('/fincas', { params });
+    const response = await api.get('/api/fincas', { params });
+    return response.data;
   },
 
   async getFincaById(id: number) {
@@ -192,13 +200,14 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get(`/fincas/${id}`);
+    const response = await api.get(`/api/fincas/${id}`);
+    return response.data;
   },
 
-  async createFinca(data: CreateFincaData, usuarioId: number) {
+  async createFinca(data: CreateFincaData) {
     if (USE_MOCK_API) {
       try {
-        const newFinca = await surveyMockApi.createFinca(data, usuarioId);
+        const newFinca = await surveyMockApi.createFinca(data);
         return { data: newFinca, status: 201 };
       } catch (error) {
         const axiosLikeError = { 
@@ -214,7 +223,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.post('/fincas', data);
+    const response = await api.post('/api/fincas', data);
+    return response.data;
   },
 
   async updateFinca(id: number, data: UpdateFincaData) {
@@ -236,7 +246,13 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.put(`/fincas/${id}`, data);
+    const response = await api.put(`/api/fincas/${id}`, data);
+    return response.data;
+  },
+
+  async deleteFinca(id: number) {
+    const response = await api.delete(`/api/fincas/${id}`);
+    return response.data;
   },
 
   // Encuestas
@@ -259,7 +275,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get('/encuestas', { params });
+    const response = await api.get('/api/encuestas', { params });
+    return response;
   },
 
   async getEncuestaById(id: number) {
@@ -281,7 +298,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get(`/encuestas/${id}`);
+    const response = await api.get(`/api/encuestas/${id}`);
+    return response.data;
   },
 
   async createEncuesta(data: CreateEncuestaData, usuarioId: number) {
@@ -303,7 +321,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.post('/encuestas', data);
+    const response = await api.post('/api/encuestas', data);
+    return response.data;
   },
 
   async updateEncuesta(id: number, data: UpdateEncuestaData, usuarioId: number) {
@@ -325,7 +344,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.put(`/encuestas/${id}`, data);
+    const response = await api.put(`/api/encuestas/${id}`, data);
+    return response.data;
   },
 
   async deleteEncuesta(id: number, usuarioId: number) {
@@ -347,7 +367,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.delete(`/encuestas/${id}`);
+    const response = await api.delete(`/api/encuestas/${id}`);
+    return response.data;
   },
 
   // Métodos auxiliares
@@ -370,7 +391,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get(`/tipos-encuesta/${tipoEncuestaId}/factores`);
+    const response = await api.get(`/api/tipos-encuesta/${tipoEncuestaId}/factores`);
+    return response.data;
   },
 
   async getEstadisticasUsuario(usuarioId: number) {
@@ -392,7 +414,8 @@ const surveyApiWrapper = {
         return Promise.reject(axiosLikeError);
       }
     }
-    return api.get(`/usuarios/${usuarioId}/estadisticas`);
+    const response = await api.get(`/api/usuarios/${usuarioId}/estadisticas`);
+    return response.data;
   },
 };
 

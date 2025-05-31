@@ -218,9 +218,9 @@ export class SurveyMockApi {
     return finca;
   }
   
-  async createFinca(data: CreateFincaData, usuarioId: number) {
+  async createFinca(data: CreateFincaData) {
     await delay();
-    const nuevaFinca = createFinca(data, usuarioId);
+    const nuevaFinca = createFinca(data);
     return nuevaFinca;
   }
   

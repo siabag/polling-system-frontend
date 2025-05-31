@@ -343,8 +343,8 @@ export const mockFincas: Finca[] = [
     id: 1,
     nombre: 'La Esperanza',
     ubicacion: 'Vereda El Carmelo, Popayán, Cauca',
-    latitud: 2.4448,
-    longitud: -76.6147,
+    latitud: "2.4448",
+    longitud: "-76.6147",
     propietario: 'Juan Pérez',
     usuario_id: 1,
     created_at: '2023-01-01T00:00:00.000Z',
@@ -354,8 +354,8 @@ export const mockFincas: Finca[] = [
     id: 2,
     nombre: 'Villa Café',
     ubicacion: 'Vereda La Playa, Popayán, Cauca',
-    latitud: 2.4890,
-    longitud: -76.5838,
+    latitud: "2.4890",
+    longitud: "-76.5838",
     propietario: 'María Rodríguez',
     usuario_id: 1,
     created_at: '2023-01-01T00:00:00.000Z',
@@ -365,8 +365,8 @@ export const mockFincas: Finca[] = [
     id: 3,
     nombre: 'El Paraíso',
     ubicacion: 'Vereda San Antonio, Timbío, Cauca',
-    latitud: 2.3455,
-    longitud: -76.6843,
+    latitud: "2.3455",
+    longitud: "-76.6843",
     propietario: 'Carlos González',
     usuario_id: 2,
     created_at: '2023-01-01T00:00:00.000Z',
@@ -376,8 +376,8 @@ export const mockFincas: Finca[] = [
     id: 4,
     nombre: 'La Montaña',
     ubicacion: 'Vereda El Rosal, Cajibío, Cauca',
-    latitud: 2.6234,
-    longitud: -76.5726,
+    latitud: "2.6234",
+    longitud: "-76.5726",
     propietario: 'Ana López',
     usuario_id: 2,
     created_at: '2023-01-01T00:00:00.000Z',
@@ -615,16 +615,16 @@ export const createFactor = (data: CreateFactorData): Factor => {
   return nuevoFactor;
 };
 
-export const createFinca = (data: CreateFincaData, usuarioId: number): Finca => {
+export const createFinca = (data: CreateFincaData): Finca => {
   const newId = mockFincas.length + 1;
   const now = new Date().toISOString();
-  
+  const usuarioId = localStorage.getItem('userId') ? Number(localStorage.getItem('userId')) : 1; // Simulamos el usuario actual
   const nuevaFinca: Finca = {
     id: newId,
     nombre: data.nombre,
     ubicacion: data.ubicacion || "",
-    latitud: data.latitud || 0,
-    longitud: data.longitud || 0,
+    latitud: data.latitud || null,
+    longitud: data.longitud || null,
     propietario: data.propietario || "",
     usuario_id: usuarioId,
     created_at: now,

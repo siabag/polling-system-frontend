@@ -337,7 +337,7 @@ export default function EditarFactorForm({ id }: EditarFactorFormProps) {
         <Typography 
           variant="h6" 
           component="h2" 
-          color="primary" 
+          color="#a7c957" 
           sx={{ 
             borderBottom: '1px solid', 
             borderColor: 'divider', 
@@ -445,7 +445,7 @@ export default function EditarFactorForm({ id }: EditarFactorFormProps) {
           <Typography 
             variant="h6" 
             component="h2" 
-            color="primary" 
+            color="#a7c957" 
             sx={{ 
               borderBottom: '1px solid', 
               borderColor: 'divider', 

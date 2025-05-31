@@ -6,7 +6,7 @@ const USE_MOCK_API = true; // Cambiarlo a false cuando tengamos el backend real
 
 // Crear una instancia de axios con la URL base
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -77,7 +77,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/login', { correo, contrasena });
+      const response = await api.post('/api/auth/login', { correo, contrasena });      
+      return response.data;
     },
     
     register: async (userData: any) => {
@@ -109,7 +110,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/register', payload);
+      const response = await api.post('/api/auth/register', payload);
+      return response.data;
     },
     
     forgotPassword: async (correo: string) => {
@@ -132,7 +134,7 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/forgot-password', { correo });
+      return api.post('api/auth/forgot-password', { correo });
     },
     
     resetPassword: async (token: string, contrasena: string) => {
@@ -155,7 +157,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/reset-password', { token, contrasena });
+      const response = await api.post('/reset-password', { token, contrasena });
+      return response.data;
     },
     
     me: async () => {
@@ -178,7 +181,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.get('/auth/me');
+      const response = await api.get('/api/auth/me');
+      return response.data;
     },
     
     logout: async () => {
@@ -201,7 +205,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/auth/logout');
+      const response = await api.post('/api/auth/logout');
+      return response.data;
     },
   },
 
@@ -227,7 +232,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.get('/users', { params });
+      const response = await api.get('/users', { params });
+      return response.data;
     },
     
     getById: async (id: number) => {
@@ -250,7 +256,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.get(`/users/${id}`);
+      const response = await api.get(`/users/${id}`);
+      return response.data;
     },
     
     create: async (userData: any) => {
@@ -280,7 +287,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post('/users', payload);
+      const response = await api.post('/users', payload);
+      return response.data;
     },
     
     update: async (id: number, userData: any) => {
@@ -309,7 +317,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.put(`/users/${id}`, payload);
+      const response = await api.put(`/users/${id}`, payload);
+      return response.data;
     },
     
     delete: async (id: number) => {
@@ -332,7 +341,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.delete(`/users/${id}`);
+      const response = await api.delete(`/users/${id}`);
+      return response.data;
     },
     
     changePassword: async (id: number, passwordData: any) => {
@@ -361,7 +371,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.post(`/users/${id}/change-password`, payload);
+      const response = await api.post(`/users/${id}/change-password`, payload);
+      return response.data;
     },
     
     getRoles: async () => {
@@ -384,7 +395,8 @@ const apiWrapper = {
           return Promise.reject(axiosLikeError);
         }
       }
-      return api.get('/roles');
+      const response = await api.get('/roles');
+      return response.data;
     },
   }
 };

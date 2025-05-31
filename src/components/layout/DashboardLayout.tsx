@@ -140,7 +140,7 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1 }}>
+      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, backgroundColor: '#a7c957' }}>
         <Toolbar>
           {/* Logo */}
           <Box
@@ -231,14 +231,6 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
                 )}
               </Popper>
 
-              <Button
-                color="inherit"
-                startIcon={<TerrainIcon />}
-                onClick={() => handleNavigate('/dashboard/fincas')}
-              >
-                Fincas
-              </Button>
-
               {isAdmin && (
                 <>
                   <Button
@@ -275,11 +267,11 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
                                 </ListItemIcon>
                                 <ListItemText>Factores</ListItemText>
                               </MenuItem>
-                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/usuarios')}>
+                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/fincas')}>
                                 <ListItemIcon>
                                   <PersonIcon fontSize="small" />
                                 </ListItemIcon>
-                                <ListItemText>Usuarios</ListItemText>
+                                <ListItemText>Fincas</ListItemText>
                               </MenuItem>
                             </MenuList>
                           </ClickAwayListener>

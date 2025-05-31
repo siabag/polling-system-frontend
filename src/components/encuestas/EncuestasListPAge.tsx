@@ -98,7 +98,7 @@ const EncuestasListPage = () => {
         ...filters,
         page: page + 1,
         limit: rowsPerPage,
-      });
+      });      
       setEncuestas(response.data.data);
       setTotal(response.data.total);
       setError(null);

@@ -77,7 +77,7 @@ const DashboardPage = () => {
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <Avatar 
               sx={{ 
-                bgcolor: 'primary.main', 
+                bgcolor: '#a7c957', 
                 width: 64, 
                 height: 64,
                 mr: 2
