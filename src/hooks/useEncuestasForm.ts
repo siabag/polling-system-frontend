@@ -203,7 +203,10 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
       setSubmitting(false);
     }
   };
-
+  // Método para marcar como completada/pendiente
+  const toggleCompletada = (completada: boolean) => {
+    setValue('completada', completada);
+  };
   return {
     // Estados
     loading,
@@ -224,6 +227,7 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
     // Métodos
     onSubmit: handleSubmit(onSubmit),
     setError,
+    toggleCompletada,
     reload: loadInitialData,
   };
 };

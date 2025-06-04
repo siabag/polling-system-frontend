@@ -2,7 +2,7 @@ import axios from 'axios';
 import { mockApi } from './mockApi';
 
 // Variable para controlar si usamos la API real o el mock
-const USE_MOCK_API = true; // Cambiarlo a false cuando tengamos el backend real
+const USE_MOCK_API = false; // Cambiarlo a false cuando tengamos el backend real
 
 // Crear una instancia de axios con la URL base
 const api = axios.create({

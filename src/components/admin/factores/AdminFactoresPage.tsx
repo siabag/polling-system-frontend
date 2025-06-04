@@ -103,6 +103,7 @@ const AdminFactoresPage = () => {
         page: page + 1,
         limit: rowsPerPage,
       });
+      console.log("response factor:", response.data)
       setFactores(response.data.data);
       setTotal(response.data.total);
       setError(null);
@@ -144,6 +145,8 @@ const AdminFactoresPage = () => {
   const handleViewFactor = async (factor: Factor) => {
     try {
       const response = await surveyApi.getFactorById(factor.id);
+      console.log(response.data);
+      
       setSelectedFactor(response.data);
       setOpenViewDialog(true);
     } catch (error) {
@@ -167,7 +170,8 @@ const AdminFactoresPage = () => {
       </Box>
     );
   }
-
+  console.log("selected_factor:", selectedFactor);
+  
   return (
     <Box>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

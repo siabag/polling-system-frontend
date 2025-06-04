@@ -14,7 +14,7 @@ import {
   FincaFilters
 } from '../types/survey';
 
-const USE_MOCK_API = true; // Cambiar a false cuando tengas el backend real
+const USE_MOCK_API = false; // Cambiar a false cuando tengas el backend real
 
 const surveyApiWrapper = {
   // Tipos de encuesta
@@ -85,7 +85,7 @@ const surveyApiWrapper = {
       }
     }
     const response = await api.get('/api/factors', { params });
-    return response.data;
+    return response;
   },
 
   async getFactorById(id: number) {

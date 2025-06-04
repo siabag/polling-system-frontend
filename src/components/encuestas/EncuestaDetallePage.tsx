@@ -49,6 +49,8 @@ const EncuestaDetallePage = () => {
     try {
       setLoading(true);
       const response = await surveyApi.getEncuestaById(Number(encuestaId));
+      console.log(response.data);
+      
       setEncuesta(response.data);
       setError(null);
     } catch (error) {
