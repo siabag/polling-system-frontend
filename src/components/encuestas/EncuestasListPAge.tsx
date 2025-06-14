@@ -26,6 +26,7 @@ import {
   Alert,
   Tooltip,
 } from '@mui/material';
+import { FileDownload as FileDownloadIcon } from '@mui/icons-material';
 import {
   Add as AddIcon,
   Visibility as ViewIcon,
@@ -41,6 +42,50 @@ import { formatDate } from '@/src/lib/utils';
 
 // Solución para el error de Grid
 const Grid = (props: any) => <MuiGrid {...props} />;
+
+const filterStyles = {
+  filterContainer: {
+    p: 3,
+    mb: 3,
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    backgroundColor: 'background.paper',
+  },
+  filterGrid: {
+    alignItems: 'center',
+  },
+  filterField: {
+    minWidth: '180px',
+    '& .MuiInputBase-root': {
+      borderRadius: '8px',
+      backgroundColor: 'background.paper',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'divider',
+      },
+      '&:hover fieldset': {
+        borderColor: 'primary.light',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'primary.main',
+        borderWidth: '1px',
+      },
+    },
+  },
+  dateField: {
+    minWidth: '180px',
+    '& .MuiInputBase-input': {
+      padding: '10.5px 14px',
+    },
+  },
+  clearButton: {
+    height: '40px',
+    borderRadius: '8px',
+    textTransform: 'none',
+    fontWeight: 600,
+  },
+};
 
 const EncuestasListPage = () => {
   const router = useRouter();
@@ -158,6 +203,30 @@ const EncuestasListPage = () => {
     );
   }
 
+  const handleDownloadReport = async () => {
+    try {
+      setLoading(true);
+      
+      // Preparamos los mismos parámetros que usamos para filtrar
+      const downloadParams = {
+        fecha_inicio: filters.fecha_desde || undefined,
+        fecha_fin: filters.fecha_hasta || undefined,
+        tipo_encuesta_id: filters.tipo_encuesta_id || undefined,
+        finca_id: filters.finca_id || undefined,
+        completada: filters.completada
+      };
+
+      await surveyApi.downloadEncuestasCSV(downloadParams);
+      
+      setError(null);
+    } catch (error) {
+      console.error('Error descargando reporte:', error);
+      setError('Error al descargar el reporte');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <Box>
       <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -174,6 +243,15 @@ const EncuestasListPage = () => {
             {showFilters ? 'Ocultar Filtros' : 'Mostrar Filtros'}
           </Button>
           <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            onClick={handleDownloadReport}
+            sx={{ mr: 2 }}
+            disabled={loading}
+          >
+            Descargar Reporte
+          </Button>
+          <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleNewEncuesta}
@@ -185,17 +263,22 @@ const EncuestasListPage = () => {
 
       {/* Filtros */}
       {showFilters && (
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} sm={6} md={2}>
+        <Paper sx={filterStyles.filterContainer}>
+          <Grid container spacing={2} sx={filterStyles.filterGrid}>
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 select
                 fullWidth
                 label="Tipo de Encuesta"
-                value={filters.tipo_encuesta_id || ''}
+                value={filters.tipo_encuesta_id}
                 onChange={(e) => handleFilterChange('tipo_encuesta_id', e.target.value)}
+                variant="outlined"
+                size="small"
+                sx={filterStyles.filterField}
               >
-                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="">
+                  <em>Todos los tipos</em>
+                </MenuItem>
                 {tiposEncuesta.map((tipo) => (
                   <MenuItem key={tipo.id} value={tipo.id}>
                     {tipo.nombre}
@@ -203,15 +286,21 @@ const EncuestasListPage = () => {
                 ))}
               </TextField>
             </Grid>
-            <Grid item xs={12} sm={6} md={2}>
+
+            <Grid item xs={12} sm={6} md={3}>
               <TextField
                 select
                 fullWidth
                 label="Finca"
-                value={filters.finca_id || ''}
+                value={filters.finca_id}
                 onChange={(e) => handleFilterChange('finca_id', e.target.value)}
+                variant="outlined"
+                size="small"
+                sx={filterStyles.filterField}
               >
-                <MenuItem value="">Todas</MenuItem>
+                <MenuItem value="">
+                  <Typography color="text.secondary">Todas las fincas</Typography>
+                </MenuItem>
                 {fincas.map((finca) => (
                   <MenuItem key={finca.id} value={finca.id}>
                     {finca.nombre}
@@ -219,41 +308,54 @@ const EncuestasListPage = () => {
                 ))}
               </TextField>
             </Grid>
+
             <Grid item xs={12} sm={6} md={2}>
               <TextField
                 fullWidth
                 label="Fecha Desde"
                 type="date"
-                value={filters.fecha_desde || ''}
+                value={filters.fecha_desde}
                 onChange={(e) => handleFilterChange('fecha_desde', e.target.value)}
                 InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                size="small"
+                sx={filterStyles.dateField}
               />
             </Grid>
+
             <Grid item xs={12} sm={6} md={2}>
               <TextField
                 fullWidth
                 label="Fecha Hasta"
                 type="date"
-                value={filters.fecha_hasta || ''}
+                value={filters.fecha_hasta}
                 onChange={(e) => handleFilterChange('fecha_hasta', e.target.value)}
                 InputLabelProps={{ shrink: true }}
+                variant="outlined"
+                size="small"
+                sx={filterStyles.dateField}
               />
             </Grid>
+
             <Grid item xs={12} sm={6} md={2}>
               <TextField
                 select
                 fullWidth
                 label="Estado"
-                value={filters.completada === undefined ? '' : filters.completada.toString()}
-                onChange={(e) => 
-                  handleFilterChange('completada', e.target.value === '' ? undefined : e.target.value === 'true')
-                }
+                value={filters.completada}
+                onChange={(e) => handleFilterChange('completada', e.target.value)}
+                variant="outlined"
+                size="small"
+                sx={filterStyles.filterField}
               >
-                <MenuItem value="">Todos</MenuItem>
+                <MenuItem value="">
+                  <em>Todos los estados</em>
+                </MenuItem>
                 <MenuItem value="true">Completadas</MenuItem>
                 <MenuItem value="false">Pendientes</MenuItem>
               </TextField>
             </Grid>
+
             <Grid item xs={12} sm={6} md={2}>
               <Button
                 fullWidth
@@ -261,8 +363,9 @@ const EncuestasListPage = () => {
                 color="error"
                 startIcon={<ClearIcon />}
                 onClick={clearFilters}
+                size="small"
               >
-                Limpiar
+                Limpiar Filtros
               </Button>
             </Grid>
           </Grid>
@@ -325,8 +428,7 @@ const EncuestasListPage = () => {
                       <ViewIcon />
                     </IconButton>
                   </Tooltip>
-                  {!encuesta.completada && (
-                    <Tooltip title="Editar">
+                  <Tooltip title="Editar">
                       <IconButton
                         size="small"
                         onClick={() => handleEditEncuesta(encuesta.id)}
@@ -334,7 +436,6 @@ const EncuestasListPage = () => {
                         <EditIcon />
                       </IconButton>
                     </Tooltip>
-                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -358,6 +459,8 @@ const EncuestasListPage = () => {
           labelRowsPerPage="Filas por página"
         />
       </TableContainer>
+
+      
     </Box>
   );
 };

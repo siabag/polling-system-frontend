@@ -1,8 +1,4 @@
-import axios from 'axios';
-import { mockApi } from './mockApi';
-
-// Variable para controlar si usamos la API real o el mock
-const USE_MOCK_API = false; // Cambiarlo a false cuando tengamos el backend real
+import axios, { AxiosError } from 'axios';
 
 // Crear una instancia de axios con la URL base
 const api = axios.create({
@@ -10,6 +6,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000, // 30 segundos
 });
 
 // Interceptor para agregar el token de autenticación a las peticiones
@@ -41,366 +38,307 @@ api.interceptors.response.use(
 
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/login?expired=true';
       }
       return Promise.reject(error);
+    }
+
+    // Mejorar manejo de errores
+    if (error.response?.data?.message) {
+      error.message = error.response.data.message;
+    } else if (error.response?.data?.error) {
+      error.message = error.response.data.error;
     }
 
     return Promise.reject(error);
   }
 );
 
+// Interfaces para tipado
+interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: boolean;
+  total?: number;
+  page?: number;
+  totalPages?: number;
+}
 
-// Wrapper para manejar la API real o el mock
-const apiWrapper = {
-  // Auth endpoints
-  auth: {
-    login: async (correo: string, contrasena: string) => {
-      if (USE_MOCK_API) {
-        try {
-          const response = await mockApi.login(correo, contrasena);
-          return { data: response, status: 200 };
-        } catch (error) {
-          console.error("Error original en login mock:", error);
-          
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 401
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.post('/api/auth/login', { correo, contrasena });      
+interface LoginCredentials {
+  correo: string;
+  contrasena: string;
+}
+
+interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  lastName: string;
+  roleId?: number;
+}
+
+interface UserFilters {
+  rol?: string;
+  activo?: boolean;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+interface CreateUserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  roleId: number;
+  activo?: boolean;
+}
+
+interface UpdateUserData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roleId?: number;
+  activo?: boolean;
+}
+
+interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+// Servicios de autenticación
+export const authApi = {
+  login: async (correo: string, contrasena: string): Promise<ApiResponse> => {
+    try {
+      const response = await api.post<ApiResponse>('/api/auth/login', { correo, contrasena });
       return response.data;
-    },
-    
-    register: async (userData: any) => {
-      // Adaptar los nombres de campos para el registro si es necesario
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  register: async (userData: RegisterData): Promise<ApiResponse> => {
+    try {
       const payload = {
         correo: userData.email,
         contrasena: userData.password,
         nombre: userData.firstName,
         apellido: userData.lastName,
-        ...userData
+        rol_id: userData.roleId,
       };
-      
-      if (USE_MOCK_API) {
-        try {
-          await mockApi.register(userData);
-          return { data: null, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.post('/api/auth/register', payload);
+      const response = await api.post<ApiResponse>('/api/auth/register', payload);
       return response.data;
-    },
-    
-    forgotPassword: async (correo: string) => {
-      if (USE_MOCK_API) {
-        try {
-          await mockApi.forgotPassword(correo);
-          return { data: null, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      return api.post('api/auth/forgot-password', { correo });
-    },
-    
-    resetPassword: async (token: string, contrasena: string) => {
-      if (USE_MOCK_API) {
-        try {
-          await mockApi.resetPassword(token, contrasena);
-          return { data: null, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.post('/reset-password', { token, contrasena });
-      return response.data;
-    },
-    
-    me: async () => {
-      if (USE_MOCK_API) {
-        try {
-          const user = await mockApi.me();
-          return { data: user, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 401
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.get('/api/auth/me');
-      return response.data;
-    },
-    
-    logout: async () => {
-      if (USE_MOCK_API) {
-        try {
-          await mockApi.logout();
-          return { data: null, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.post('/api/auth/logout');
-      return response.data;
-    },
+    } catch (error) {
+      throw error;
+    }
   },
+  
+  forgotPassword: async (correo: string): Promise<ApiResponse> => {
+    try {
+      const response = await api.post<ApiResponse>('/api/auth/forgot-password', { correo });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  resetPassword: async (token: string, contrasena: string): Promise<ApiResponse> => {
+    try {
+      const response = await api.post<ApiResponse>('/api/auth/reset-password', { token, contrasena });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  me: async (): Promise<ApiResponse> => {
+    try {
+      const response = await api.get<ApiResponse>('/api/auth/me');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  logout: async (): Promise<ApiResponse> => {
+    try {
+      const response = await api.post<ApiResponse>('/api/auth/logout');
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
 
-  // User endpoints
-  user: {
-    getAll: async (params?: any) => {
-      if (USE_MOCK_API) {
-        try {
-          const result = await mockApi.getAllUsers(params);
-          return { data: result, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.get('/users', { params });
+// Servicios de usuario
+export const userApi = {
+  getAll: async (params?: UserFilters): Promise<ApiResponse> => {
+    try {
+      // Limpiar parámetros undefined
+      const cleanParams = params ? Object.fromEntries(
+        Object.entries(params).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      ) : {};
+      
+      const response = await api.get<ApiResponse>('/api/users', { params: cleanParams });
       return response.data;
-    },
-    
-    getById: async (id: number) => {
-      if (USE_MOCK_API) {
-        try {
-          const user = await mockApi.getUserById(id);
-          return { data: user, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 404
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.get(`/users/${id}`);
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  getById: async (id: number): Promise<ApiResponse> => {
+    try {
+      const response = await api.get<ApiResponse>(`/api/users/${id}`);
       return response.data;
-    },
-    
-    create: async (userData: any) => {
-      // Adaptar los nombres de campos si es necesario
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  create: async (userData: CreateUserData): Promise<ApiResponse> => {
+    try {
       const payload = {
+        nombre: userData.firstName,
+        apellido: userData.lastName,
         correo: userData.email,
         contrasena: userData.password,
-        ...userData
+        rol_id: userData.roleId,
+        activo: userData.activo ?? true,
       };
+      const response = await api.post<ApiResponse>('/api/users', payload);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  update: async (id: number, userData: UpdateUserData): Promise<ApiResponse> => {
+    try {
+      const payload: any = {};
       
-      if (USE_MOCK_API) {
-        try {
-          const newUser = await mockApi.createUser(userData);
-          return { data: newUser, status: 201 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.post('/users', payload);
-      return response.data;
-    },
-    
-    update: async (id: number, userData: any) => {
-      // Adaptar los nombres de campos si es necesario
-      const payload = {
-        correo: userData.email,
-        ...userData
-      };
+      if (userData.firstName) payload.nombre = userData.firstName;
+      if (userData.lastName) payload.apellido = userData.lastName;
+      if (userData.email) payload.correo = userData.email;
+      if (userData.roleId) payload.rol_id = userData.roleId;
+      if (userData.activo !== undefined) payload.activo = userData.activo;
       
-      if (USE_MOCK_API) {
-        try {
-          const updatedUser = await mockApi.updateUser(id, userData);
-          return { data: updatedUser, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: error instanceof Error && error.message.includes('no encontrado') ? 404 : 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.put(`/users/${id}`, payload);
+      const response = await api.put<ApiResponse>(`/api/users/${id}`, payload);
       return response.data;
-    },
-    
-    delete: async (id: number) => {
-      if (USE_MOCK_API) {
-        try {
-          await mockApi.deleteUser(id);
-          return { data: { success: true }, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 404
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.delete(`/users/${id}`);
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  delete: async (id: number): Promise<ApiResponse> => {
+    try {
+      const response = await api.delete<ApiResponse>(`/api/users/${id}`);
       return response.data;
-    },
-    
-    changePassword: async (id: number, passwordData: any) => {
-      // Adaptar los nombres de campos para el cambio de contraseña
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  changePassword: async (id: number, passwordData: ChangePasswordData): Promise<ApiResponse> => {
+    try {
       const payload = {
         contrasenaActual: passwordData.currentPassword,
         nuevaContrasena: passwordData.newPassword
       };
-      
-      if (USE_MOCK_API) {
-        try {
-          await mockApi.changeUserPassword(id, passwordData);
-          return { data: { success: true }, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.post(`/users/${id}/change-password`, payload);
+      const response = await api.post<ApiResponse>(`/api/users/${id}/change-password`, payload);
       return response.data;
-    },
-    
-    getRoles: async () => {
-      if (USE_MOCK_API) {
-        try {
-          const roles = await mockApi.getRoles();
-          return { data: roles, status: 200 };
-        } catch (error) {
-          const axiosLikeError = { 
-            response: { 
-              data: { 
-                message: error instanceof Error ? error.message : 'Error desconocido' 
-              },
-              status: 400
-            },
-            isAxiosError: true,
-            message: error instanceof Error ? error.message : 'Error desconocido'
-          };
-          
-          return Promise.reject(axiosLikeError);
-        }
-      }
-      const response = await api.get('/roles');
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  getRoles: async (): Promise<ApiResponse> => {
+    try {
+      const response = await api.get<ApiResponse>('/api/roles');
       return response.data;
-    },
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Métodos adicionales útiles
+  toggleUserStatus: async (id: number, activo: boolean): Promise<ApiResponse> => {
+    try {
+      const response = await api.patch<ApiResponse>(`/api/users/${id}/status`, { activo });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  bulkDelete: async (ids: number[]): Promise<ApiResponse> => {
+    try {
+      const response = await api.delete<ApiResponse>('/api/users/bulk', { data: { ids } });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  exportUsers: async (format: 'csv' | 'xlsx' = 'csv'): Promise<Blob> => {
+    try {
+      const response = await api.get(`/api/users/export?format=${format}`, {
+        responseType: 'blob'
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+};
+
+// Función helper para manejo de errores
+export const getErrorMessage = (error: any): string => {
+  if (error.response?.data?.message) {
+    return error.response.data.message;
+  } else if (error.response?.data?.error) {
+    return error.response.data.error;
+  } else if (error.message) {
+    return error.message;
+  } else if (error.response?.status) {
+    switch (error.response.status) {
+      case 400:
+        return 'Datos inválidos. Por favor, revise la información ingresada.';
+      case 401:
+        return 'No autorizado. Por favor, inicie sesión nuevamente.';
+      case 403:
+        return 'Acceso denegado. No tiene permisos para realizar esta acción.';
+      case 404:
+        return 'Recurso no encontrado.';
+      case 409:
+        return 'Conflicto. El recurso ya existe.';
+      case 422:
+        return 'Error de validación. Revise los datos ingresados.';
+      case 500:
+        return 'Error interno del servidor. Intente nuevamente más tarde.';
+      case 503:
+        return 'Servicio no disponible. Intente nuevamente más tarde.';
+      default:
+        return 'Ha ocurrido un error inesperado. Intente nuevamente.';
+    }
+  } else {
+    return 'Error de conexión. Verifique su conexión a internet.';
   }
 };
 
+// Función helper para validar respuestas
+export const validateResponse = (response: ApiResponse): boolean => {
+  return response && (response.success === true || response.error === false);
+};
+
+// Función helper para extraer datos de respuesta
+export const extractResponseData = <T>(response: ApiResponse<T>): T | null => {
+  if (validateResponse(response)) {
+    return response.data || null;
+  }
+  return null;
+};
+
 export default api;
-export const authApi = apiWrapper.auth;
-export const userApi = apiWrapper.user;

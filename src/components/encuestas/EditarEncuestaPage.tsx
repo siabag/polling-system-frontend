@@ -66,7 +66,13 @@ const EditarEncuestaPage = () => {
   } = useEncuestaForm({
     encuestaId: Number(encuestaId),
     userId: user?.id || 0,
-    onSuccess: () => router.push(`/dashboard/encuestas/${encuestaId}`),
+    onSuccess: () => {
+      console.log("Encuesta editada exitosamente, redirigiendo...");
+      router.push(`/dashboard/encuestas/${encuestaId}`);
+    },
+    onError: (error) => {
+      console.error("Error en edición:", error);
+    }
   });
 
   const selectedTipoEncuestaId = watch('tipo_encuesta_id');
@@ -157,7 +163,7 @@ const EditarEncuestaPage = () => {
           ) : (
             <Chip
               icon={<HourglassEmptyIcon />}
-              label="Pendiente"
+              label="Procesando"
               size="small"
               color="warning"
             />
@@ -297,6 +303,7 @@ const EditarEncuestaPage = () => {
               color="warning"
               startIcon={<HourglassEmptyIcon />}
               onClick={handleMarkAsPending}
+              type="button"
             >
               Marcar como Pendiente
             </Button>
@@ -305,6 +312,7 @@ const EditarEncuestaPage = () => {
               color="success"
               startIcon={<CheckCircleIcon />}
               onClick={handleMarkAsComplete}
+              type="button"
             >
               Marcar como Completada
             </Button>
@@ -365,6 +373,8 @@ const EditarEncuestaPage = () => {
                       render={({ field }) => (
                         <RadioGroup
                           {...field}
+                          value={field.value || 0} // Asegurar que nunca sea undefined
+                          onChange={(e) => field.onChange(Number(e.target.value))}
                           sx={{
                             display: 'flex',
                             flexDirection: 'row',
@@ -454,6 +464,7 @@ const EditarEncuestaPage = () => {
             variant="outlined"
             color="primary"
             onClick={() => router.push(`/dashboard/encuestas/${encuestaId}`)}
+            type="button"
           >
             Cancelar
           </ActionButton>

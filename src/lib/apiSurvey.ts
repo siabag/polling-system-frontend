@@ -417,6 +417,62 @@ const surveyApiWrapper = {
     const response = await api.get(`/api/usuarios/${usuarioId}/estadisticas`);
     return response.data;
   },
+
+  async downloadEncuestasCSV(params?: {
+    fecha_inicio?: string;
+    fecha_fin?: string;
+    tipo_encuesta_id?: number;
+    finca_id?: number;
+    completada?: boolean;
+  }) {
+    const response = await api.get('/api/reportes/encuestas/csv', {
+      params,
+      responseType: 'blob',
+    });
+
+    // Crear blob y descargar
+    const blob = new Blob([response.data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const timestamp = new Date().toISOString().split('T')[0];
+    link.download = `reporte_encuestas_${timestamp}.csv`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+
+    return { success: true, message: 'Reporte descargado exitosamente' };
+  },
+
+  // Vista previa del reporte
+  async getEncuestasReportPreview(params?: {
+    fecha_inicio?: string;
+    fecha_fin?: string;
+    tipo_encuesta_id?: number;
+    finca_id?: number;
+    completada?: boolean;
+    page?: number;
+    limit?: number;
+  }) {
+    if (USE_MOCK_API) {
+      // Mock para desarrollo
+      const mockData = {
+        data: await surveyMockApi.getEncuestas(params),
+        total: 50,
+        page: params?.page || 1,
+        totalPages: 5,
+        filters_applied: params || {},
+        message: 'Vista previa del reporte (50 registros encontrados)'
+      };
+      return { data: mockData, status: 200 };
+    }
+    
+    const response = await api.get('/api/reportes/encuestas/preview', { params });
+    return response.data;
+  },
 };
 
 export const surveyApi = surveyApiWrapper;

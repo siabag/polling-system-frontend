@@ -1,13 +1,55 @@
 import { useState, useCallback } from 'react';
-import { 
-  CreateUserData, 
-  UpdateUserData, 
-  ChangePasswordData,
-  UserFilters
-} from '../types/user';
 import { userApi } from '../lib/api';
 import { getErrorMessage } from '../lib/utils';
-import { User } from '../types/auth';
+
+// Tipos
+export interface User {
+  id: number;
+  nombre: string;
+  apellido: string;
+  correo: string;
+  activo: boolean;
+  rol: string;
+  fechaCreacion?: string;
+  ultimaActividad?: string;
+}
+
+export interface CreateUserData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  roleId: number;
+  activo?: boolean;
+}
+
+export interface UpdateUserData {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  roleId?: number;
+  activo?: boolean;
+}
+
+export interface ChangePasswordData {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UserFilters {
+  rol?: string;
+  activo?: boolean;
+  search?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface UsersResponse {
+  users: User[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
 
 /**
  * Hook personalizado para la gestión de usuarios
@@ -23,23 +65,32 @@ const useUsers = () => {
   /**
    * Obtener listado de usuarios con filtros opcionales
    */
-  const getUsers = useCallback(async (filters?: UserFilters) => {
+  const getUsers = useCallback(async (filters?: UserFilters): Promise<User[]> => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await userApi.getAll(filters);
-      setUsers(response.data.users);
-      setTotalUsers(response.data.total);
+      
+      // Manejo flexible de la respuesta del backend
+      const data = response.data || response;
+      const usersList = data.users || data || [];
+      const total = data.total || usersList.length;
+      
+      setUsers(usersList);
+      setTotalUsers(total);
       
       // Calcular total de páginas
       const limit = filters?.limit || 10;
-      setTotalPages(Math.ceil(response.data.total / limit));
+      setTotalPages(Math.ceil(total / limit));
       setCurrentPage(filters?.page || 1);
 
-      return response.data.users;
+      return usersList;
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
+      setUsers([]);
+      setTotalUsers(0);
       return [];
     } finally {
       setLoading(false);
@@ -49,15 +100,18 @@ const useUsers = () => {
   /**
    * Obtener un usuario por su ID
    */
-  const getUserById = useCallback(async (id: number) => {
+  const getUserById = useCallback(async (id: number): Promise<User | null> => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await userApi.getById(id);
-      return response.data;
+      const userData = response.data || response;
+      
+      return userData;
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
       return null;
     } finally {
       setLoading(false);
@@ -67,22 +121,24 @@ const useUsers = () => {
   /**
    * Crear un nuevo usuario
    */
-  const createUser = useCallback(async (userData: CreateUserData) => {
+  const createUser = useCallback(async (userData: CreateUserData): Promise<User | null> => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await userApi.create(userData);
+      const newUser = response.data || response;
       
       // Actualizar la lista de usuarios si ya existe
       if (users.length > 0) {
-        setUsers(prevUsers => [...prevUsers, response.data]);
+        setUsers(prevUsers => [newUser, ...prevUsers]);
         setTotalUsers(prevTotal => prevTotal + 1);
       }
 
-      return response.data;
+      return newUser;
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
       return null;
     } finally {
       setLoading(false);
@@ -92,23 +148,25 @@ const useUsers = () => {
   /**
    * Actualizar un usuario existente
    */
-  const updateUser = useCallback(async (id: number, userData: UpdateUserData) => {
+  const updateUser = useCallback(async (id: number, userData: UpdateUserData): Promise<User | null> => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await userApi.update(id, userData);
+      const updatedUser = response.data || response;
       
       // Actualizar la lista de usuarios
       setUsers(prevUsers => 
         prevUsers.map(user => 
-          user.id === id ? { ...user, ...response.data } : user
+          user.id === id ? { ...user, ...updatedUser } : user
         )
       );
 
-      return response.data;
+      return updatedUser;
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
       return null;
     } finally {
       setLoading(false);
@@ -118,7 +176,7 @@ const useUsers = () => {
   /**
    * Cambiar la contraseña de un usuario
    */
-  const changeUserPassword = useCallback(async (id: number, passwordData: ChangePasswordData) => {
+  const changeUserPassword = useCallback(async (id: number, passwordData: ChangePasswordData): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);
@@ -126,7 +184,8 @@ const useUsers = () => {
       await userApi.changePassword(id, passwordData);
       return true;
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
       return false;
     } finally {
       setLoading(false);
@@ -136,7 +195,7 @@ const useUsers = () => {
   /**
    * Eliminar un usuario
    */
-  const deleteUser = useCallback(async (id: number) => {
+  const deleteUser = useCallback(async (id: number): Promise<boolean> => {
     try {
       setLoading(true);
       setError(null);
@@ -149,8 +208,28 @@ const useUsers = () => {
       
       return true;
     } catch (error) {
-      setError(getErrorMessage(error));
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
       return false;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  /**
+   * Obtener roles disponibles
+   */
+  const getRoles = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await userApi.getRoles();
+      return response.data || response;
+    } catch (error) {
+      const errorMessage = getErrorMessage(error);
+      setError(errorMessage);
+      return [];
     } finally {
       setLoading(false);
     }
@@ -163,20 +242,37 @@ const useUsers = () => {
     setError(null);
   }, []);
 
+  /**
+   * Resetear estado
+   */
+  const resetState = useCallback(() => {
+    setUsers([]);
+    setTotalUsers(0);
+    setCurrentPage(1);
+    setTotalPages(1);
+    setError(null);
+    setLoading(false);
+  }, []);
+
   return {
+    // Estado
     users,
     totalUsers,
     loading,
     error,
     currentPage,
     totalPages,
+    
+    // Métodos
     getUsers,
     getUserById,
     createUser,
     updateUser,
     changeUserPassword,
     deleteUser,
+    getRoles,
     clearErrors,
+    resetState,
   };
 };
 

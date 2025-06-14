@@ -173,15 +173,6 @@ const LoginForm = () => {
           </Alert>
         )}
 
-        {/* Ayuda para pruebas */}
-        <Box sx={{ width: '100%', mb: 2 }}>
-          <Alert severity="info" sx={{ mb: 2 }}>
-            <Typography variant="caption">
-              Para pruebas: admin@sistema.com / admin123
-            </Typography>
-          </Alert>
-        </Box>
-
         <Box
           component="form"
           onSubmit={handleSubmit(onSubmit)}
@@ -229,30 +220,6 @@ const LoginForm = () => {
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Iniciar sesión'}
           </Button>
-
-          {/* Botones de acceso rápido */}
-          <Box sx={{ mt: 2, mb: 2 }}>
-            <Button
-              size="small"
-              onClick={() => handleQuickLogin('admin@sistema.com', 'admin123')}
-              sx={{ mr: 1 }}
-            >
-              Admin
-            </Button>
-            <Button
-              size="small"
-              onClick={() => handleQuickLogin('juan@ejemplo.com', 'Juan123')}
-              sx={{ mr: 1 }}
-            >
-              Juan
-            </Button>
-            <Button
-              size="small"
-              onClick={() => handleQuickLogin('maria@ejemplo.com', 'Maria123')}
-            >
-              María
-            </Button>
-          </Box>
 
           <Divider sx={{ my: 3 }}>
             <Typography variant="body2" color="text.secondary">

@@ -273,6 +273,12 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
                                 </ListItemIcon>
                                 <ListItemText>Fincas</ListItemText>
                               </MenuItem>
+                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/users')}>
+                                <ListItemIcon>
+                                  <PersonIcon fontSize="small" />
+                                </ListItemIcon>
+                                <ListItemText>usuarios</ListItemText>
+                              </MenuItem>
                             </MenuList>
                           </ClickAwayListener>
                         </Paper>

@@ -48,6 +48,7 @@ export interface AuthCredentials {
     apellido: string;
     correo: string;
     rol: string;
+    activo: boolean;
   }
   
   export interface Role {

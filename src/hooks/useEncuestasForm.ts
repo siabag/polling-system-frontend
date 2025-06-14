@@ -83,7 +83,7 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
 
   // Cargar factores cuando se selecciona un tipo de encuesta
   useEffect(() => {
-    if (selectedTipoEncuestaId) {
+    if (selectedTipoEncuestaId && selectedTipoEncuestaId !== 0) {
       loadFactores(selectedTipoEncuestaId);
     } else {
       setFactores([]);
@@ -117,6 +117,9 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
       const encuestaData = response.data;
       setEncuesta(encuestaData);
       
+      console.log('Encuesta cargada:', encuestaData);
+      console.log('Respuestas existentes:', encuestaData.respuestas);
+      
       // Establecer valores del formulario
       reset({
         fecha_aplicacion: encuestaData.fecha_aplicacion,
@@ -126,7 +129,7 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
         completada: encuestaData.completada || false,
         respuestas: encuestaData.respuestas?.map((r:any) => ({
           factor_id: r.factor_id,
-          valor_posible_id: r.valor_posible_id,
+          valor_posible_id: r.valor_posible_id || 0,
           respuesta_texto: r.respuesta_texto || '',
         })) || [],
       });
@@ -146,15 +149,37 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
       const response = await surveyApi.getFactoresConValoresByTipoEncuesta(tipoEncuestaId);
       setFactores(response.data);
       
-      // Si no estamos en modo edición o si cambiamos el tipo de encuesta en modo edición
-      // inicializamos las respuestas
-      if (!encuestaId || (encuesta && encuesta.tipo_encuesta_id !== Number(tipoEncuestaId))) {
+      // Si no estamos en modo edición, inicializamos las respuestas normalmente
+      if (!encuestaId) {
         const initialRespuestas = response.data.map((factor: Factor) => ({
           factor_id: factor.id,
-          valor_posible_id: '',
+          valor_posible_id: 0,
           respuesta_texto: '',
         }));
         setValue('respuestas', initialRespuestas);
+      } else {
+        // Si estamos en modo edición, necesitamos verificar que todos los factores tengan respuesta
+        const currentRespuestas = watch('respuestas') || [];
+        const updatedRespuestas = response.data.map((factor: Factor) => {
+          // Buscar si ya existe una respuesta para este factor
+          const existingRespuesta = currentRespuestas.find((r: any) => r.factor_id === factor.id);
+          
+          if (existingRespuesta) {
+            // Si existe, mantenerla
+            return existingRespuesta;
+          } else {
+            // Si no existe, crear una nueva (factor agregado después de crear la encuesta)
+            console.log(`Agregando nuevo factor ${factor.id} - ${factor.nombre} a encuesta existente`);
+            return {
+              factor_id: factor.id,
+              valor_posible_id: 0,
+              respuesta_texto: '',
+            };
+          }
+        });
+        
+        setValue('respuestas', updatedRespuestas);
+        console.log('Respuestas actualizadas con nuevos factores:', updatedRespuestas);
       }
       
       setError(null);
@@ -165,48 +190,76 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
     }
   };
 
-  const onSubmit = async (data: any) => {
+  // FUNCIÓN DE SUBMIT PRINCIPAL
+  const submitForm = async (data: any) => {
+    console.log("=== INICIO SUBMIT ===");
+    console.log("Datos recibidos:", data);
+    console.log("Modo edición:", !!encuestaId);
+    console.log("ID Encuesta:", encuestaId);
+
     try {
       setSubmitting(true);
       setError(null);
       
       const formattedData = {
         ...data,
-        respuestas: data.respuestas.filter((r: any) => r.valor_posible_id),
+        respuestas: data.respuestas?.filter((r: any) => r.valor_posible_id && r.valor_posible_id > 0) || [],
       };
+      
+      console.log("Datos formateados:", formattedData);
       
       let response;
       if (encuestaId) {
         // Modo edición
+        console.log("=== EDITANDO ENCUESTA ===");
         response = await surveyApi.updateEncuesta(
           encuestaId,
           formattedData as UpdateEncuestaData,
           userId
         );
+        console.log("Respuesta edición:", response);
       } else {
         // Modo creación
+        console.log("=== CREANDO ENCUESTA ===");
         response = await surveyApi.createEncuesta(
           formattedData as CreateEncuestaData,
           userId
         );
+        console.log("Respuesta creación:", response);
       }
       
-      if (onSuccess) onSuccess(response.data);
+      console.log("=== ÉXITO ===");
+      if (onSuccess) {
+        onSuccess(response.data);
+      }
+      
       return response.data;
     } catch (error: any) {
-      console.error('Error procesando encuesta:', error);
+      console.error('=== ERROR ===', error);
       const errorMessage = error.response?.data?.message || 'Error al procesar la encuesta';
       setError(errorMessage);
-      if (onError) onError(error);
+      if (onError) {
+        onError(error);
+      }
       throw error;
     } finally {
+      console.log("=== FIN SUBMIT ===");
       setSubmitting(false);
     }
   };
+
   // Método para marcar como completada/pendiente
   const toggleCompletada = (completada: boolean) => {
+    console.log("Cambiando estado completada a:", completada);
     setValue('completada', completada);
   };
+
+  // Crear la función onSubmit que será exportada
+  const onSubmit = handleSubmit((data) => {
+    console.log("=== HANDLER SUBMIT EJECUTADO ===");
+    return submitForm(data);
+  });
+
   return {
     // Estados
     loading,
@@ -225,7 +278,7 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
     errors,
     
     // Métodos
-    onSubmit: handleSubmit(onSubmit),
+    onSubmit, // Función completa handleSubmit + submitForm
     setError,
     toggleCompletada,
     reload: loadInitialData,

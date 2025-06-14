@@ -126,15 +126,13 @@ const EncuestaDetallePage = () => {
             >
               Imprimir
             </Button>
-            {!encuesta.completada && (
-              <Button
+            <Button
                 variant="contained"
                 startIcon={<EditIcon />}
                 onClick={handleEdit}
               >
                 Editar
               </Button>
-            )}
             <Button
               variant="outlined"
               startIcon={<ArrowBackIcon />}
