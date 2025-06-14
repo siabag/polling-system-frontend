@@ -15,7 +15,7 @@ const UsersPage: NextPage = () => {
     if (!loading) {
       if (!isAuthenticated) {
         router.push('/login');
-      } else if (user?.role.name !== 'administrador') {
+      } else if (user?.rol !== 'administrador') {
         // Solo los administradores pueden acceder a la gestión de usuarios
         router.push('/dashboard');
       }
@@ -27,7 +27,7 @@ const UsersPage: NextPage = () => {
   }
 
   // Si no es administrador, no mostrar nada
-  if (user?.role.name !== 'administrador') {
+  if (user?.rol !== 'administrador') {
     return null;
   }
 

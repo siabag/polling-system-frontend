@@ -44,12 +44,11 @@ export interface AuthCredentials {
 
   export interface User {
     id: number;
-    firstName: string;
-    lastName: string;
-    email: string;
-    role: Role;
-    active: boolean;
-    createdAt: string;
+    nombre: string;
+    apellido: string;
+    correo: string;
+    rol: string;
+    activo: boolean;
   }
   
   export interface Role {

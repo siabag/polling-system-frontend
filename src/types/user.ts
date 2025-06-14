@@ -18,8 +18,7 @@ export interface CreateUserData {
   lastName: string;
   email: string;
   password: string;
-  roleId: number;
-  active: boolean;
+  roleId: number
 }
 
 export interface UpdateUserData {

@@ -74,7 +74,7 @@ const UserList: React.FC<UserListProps> = ({ initialFilters = { page: 1, limit: 
     
     if (success) {
       setAlertType('success');
-      setAlertMessage(`Usuario ${userToDelete.firstName} ${userToDelete.lastName} eliminado correctamente`);
+      setAlertMessage(`Usuario ${userToDelete.nombre} ${userToDelete.apellido} eliminado correctamente`);
       setShowAlert(true);
     }
     
@@ -161,27 +161,20 @@ const UserList: React.FC<UserListProps> = ({ initialFilters = { page: 1, limit: 
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold">
-                        {user.firstName.charAt(0)}{user.lastName.charAt(0)}
+                        {user.nombre.charAt(0)}{user.apellido.charAt(0)}
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">
-                          {user.firstName} {user.lastName}
+                          {user.nombre} {user.apellido}
                         </div>
                       </div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.email}</div>
+                    <div className="text-sm text-gray-900">{user.correo}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{user.role.name}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      user.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                    }`}>
-                      {user.active ? 'Activo' : 'Inactivo'}
-                    </span>
+                    <div className="text-sm text-gray-900">{user.rol}</div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <div className="flex justify-end space-x-2">
@@ -301,7 +294,7 @@ const UserList: React.FC<UserListProps> = ({ initialFilters = { page: 1, limit: 
                     </h3>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        ¿Está seguro que desea eliminar al usuario {userToDelete.firstName} {userToDelete.lastName}? Esta acción no puede deshacerse.
+                        ¿Está seguro que desea eliminar al usuario {userToDelete.nombre} {userToDelete.apellido}? Esta acción no puede deshacerse.
                       </p>
                     </div>
                   </div>

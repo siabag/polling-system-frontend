@@ -114,7 +114,7 @@ const RegisterForm: React.FC = () => {
           autoComplete="new-password"
           error={errors.password?.message}
           fullWidth
-          helperText="La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número"
+          //helperText="La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número"
           {...register('password')}
         />
 

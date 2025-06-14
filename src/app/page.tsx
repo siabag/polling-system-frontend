@@ -35,22 +35,12 @@ export default function Home() {
             Este sistema está utilizando datos simulados para demostración. 
             Puedes iniciar sesión con las siguientes credenciales:
           </p>
-          <ul className="text-left mt-3">
-            <li><strong>Administrador:</strong> admin@sistema.com / admin123</li>
-            <li><strong>Encuestador:</strong> juan@ejemplo.com / Juan123</li>
-            <li><strong>Analista:</strong> maria@ejemplo.com / Maria123</li>
-          </ul>
         </div>
 
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <Link href="/login">
             <Button variant="primary" size="lg">
               Iniciar sesión
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button variant="outline" size="lg">
-              Registrarse
             </Button>
           </Link>
         </div>

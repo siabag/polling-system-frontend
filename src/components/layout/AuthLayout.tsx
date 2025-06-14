@@ -18,7 +18,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
           <div className="w-20 h-20 relative">
-            <div className="w-20 h-20 flex items-center justify-center bg-primary-600 text-white text-3xl font-bold rounded-full">
+            <div className="w-20 h-20 flex items-center justify-center bg-[#a7c957] text-white text-3xl font-bold rounded-full">
               EC
             </div>
           </div>
