@@ -203,7 +203,7 @@ export default function CrearUsuarioForm() {
     
     if (result) {
       // Usuario creado exitosamente
-      router.push('/dashboard/admin/usuarios?created=true');
+      router.push('/dashboard/admin/users');
     }
   });
   

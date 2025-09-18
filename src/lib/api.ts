@@ -256,7 +256,7 @@ export const userApi = {
   
   getRoles: async (): Promise<ApiResponse> => {
     try {
-      const response = await api.get<ApiResponse>('/api/roles');
+      const response = await api.get<ApiResponse>('/api/auth/roles');
       return response.data;
     } catch (error) {
       throw error;

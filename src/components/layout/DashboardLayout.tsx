@@ -11,19 +11,17 @@ import {
   Avatar,
   Menu,
   MenuItem,
-  Button,
-  Badge,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
   useTheme,
   useMediaQuery,
   CircularProgress,
   Container,
-  Popper,
-  Grow,
-  Paper,
-  MenuList,
-  ClickAwayListener,
-  ListItemIcon,
-  ListItemText,
   Divider,
 } from '@mui/material';
 import {
@@ -38,25 +36,32 @@ import {
   List as ListIcon,
   Category as CategoryIcon,
   Menu as MenuIcon,
-  ArrowDropDown as ArrowDropDownIcon,
+  ExpandLess,
+  ExpandMore,
+  ChevronLeft as ChevronLeftIcon,
+  Agriculture as AgricultureIcon,
 } from '@mui/icons-material';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const DashboardLayout = ({ children }:DashboardLayoutProps) => {
+const DRAWER_WIDTH = 280;
+
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [encuestasOpen, setEncuestasOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
-  const [mobileMenuAnchor, setMobileMenuAnchor] = useState<null | HTMLElement>(null);
-  const encuestasAnchorRef = React.useRef<HTMLButtonElement>(null);
-  const adminAnchorRef = React.useRef<HTMLButtonElement>(null);
   
   const { user, logout, isAuthenticated, loading } = useAuth();
   const router = useRouter();
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,45 +77,18 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
   };
 
   const handleNavigate = (path: string) => {
-    setEncuestasOpen(false);
-    setAdminOpen(false);
-    setMobileMenuAnchor(null);
     router.push(path);
+    if (isMobile) {
+      setMobileOpen(false);
+    }
   };
 
   const handleToggleEncuestas = () => {
-    setEncuestasOpen((prevOpen) => !prevOpen);
-    setAdminOpen(false);
+    setEncuestasOpen(!encuestasOpen);
   };
 
   const handleToggleAdmin = () => {
-    setAdminOpen((prevOpen) => !prevOpen);
-    setEncuestasOpen(false);
-  };
-
-  const handleClose = (event: Event) => {
-    if (
-      encuestasAnchorRef.current &&
-      encuestasAnchorRef.current.contains(event.target as HTMLElement)
-    ) {
-      return;
-    }
-    if (
-      adminAnchorRef.current &&
-      adminAnchorRef.current.contains(event.target as HTMLElement)
-    ) {
-      return;
-    }
-    setEncuestasOpen(false);
-    setAdminOpen(false);
-  };
-
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMobileMenuAnchor(event.currentTarget);
-  };
-
-  const handleMobileMenuClose = () => {
-    setMobileMenuAnchor(null);
+    setAdminOpen(!adminOpen);
   };
 
   // Proteger ruta
@@ -138,172 +116,274 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
 
   const isAdmin = user?.rol === 'administrador';
 
-  return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-      <AppBar position="fixed" sx={{ zIndex: theme.zIndex.drawer + 1, backgroundColor: '#a7c957' }}>
-        <Toolbar>
-          {/* Logo */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              cursor: 'pointer',
-              mr: 4,
-            }}
+  const drawer = (
+    <Box sx={{ height: '100%', backgroundColor: '#2c5530' }}>
+      {/* Header del Sidebar */}
+      <Box
+        sx={{
+          p: 2,
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: '#1e3a20',
+          color: 'white',
+        }}
+      >
+        <Box
+          sx={{
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            backgroundColor: '#a7c957',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: 'bold',
+            mr: 2,
+          }}
+        >
+          EC
+        </Box>
+        <Typography variant="h6" noWrap>
+          Encuestas Café
+        </Typography>
+      </Box>
+
+      <Divider sx={{ borderColor: '#4a6741' }} />
+
+      {/* Menu Items */}
+      <List sx={{ color: 'white', py: 2 }}>
+        {/* Inicio/Dashboard */}
+        <ListItem disablePadding>
+          <ListItemButton 
             onClick={() => handleNavigate('/dashboard')}
+            sx={{ 
+              '&:hover': { backgroundColor: '#4a6741' },
+              py: 1.5,
+            }}
           >
-            <Box
-              sx={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                backgroundColor: 'white',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'primary.main',
-                fontWeight: 'bold',
-                mr: 1,
+            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText primary="Inicio" />
+          </ListItemButton>
+        </ListItem>
+
+        <Divider sx={{ borderColor: '#4a6741', my: 1 }} />
+
+        {/* Monitoreo en tiempo real */}
+        <ListItem disablePadding>
+          <ListItemButton 
+            onClick={() => handleNavigate('/dashboard/monitoreo')}
+            sx={{ 
+              '&:hover': { backgroundColor: '#4a6741' },
+              py: 1.5,
+            }}
+          >
+            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+              <AssessmentIcon />
+            </ListItemIcon>
+            <ListItemText primary="Monitoreo en tiempo real" />
+          </ListItemButton>
+        </ListItem>
+
+        {/* Gestión tareas agroambientales */}
+        <ListItem disablePadding>
+          <ListItemButton 
+            onClick={handleToggleEncuestas}
+            sx={{ 
+              '&:hover': { backgroundColor: '#4a6741' },
+              py: 1.5,
+            }}
+          >
+            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+              <AgricultureIcon />
+            </ListItemIcon>
+            <ListItemText primary="Gestión tareas agroambientales" />
+            {encuestasOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItemButton>
+        </ListItem>
+
+        {/* Submenu de Gestión tareas */}
+        <Collapse in={encuestasOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton 
+              sx={{ 
+                pl: 6, 
+                '&:hover': { backgroundColor: '#4a6741' },
+                py: 1,
               }}
+              onClick={() => handleNavigate('/dashboard/encuestas/nueva')}
             >
-              EC
-            </Box>
-            <Typography variant="h6" noWrap component="div" sx={{ display: { xs: 'none', sm: 'block' } }}>
-              Encuestas Café
-            </Typography>
-          </Box>
+              <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                <AddIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Nueva Encuesta" />
+            </ListItemButton>
+            <ListItemButton 
+              sx={{ 
+                pl: 6, 
+                '&:hover': { backgroundColor: '#4a6741' },
+                py: 1,
+              }}
+              onClick={() => handleNavigate('/dashboard/encuestas')}
+            >
+              <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                <ListIcon fontSize="small" />
+              </ListItemIcon>
+              <ListItemText primary="Mis Encuestas" />
+            </ListItemButton>
+          </List>
+        </Collapse>
 
-          {/* Desktop Menu */}
-          {!isMobile && (
-            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-              <Button
-                color="inherit"
-                startIcon={<DashboardIcon />}
-                onClick={() => handleNavigate('/dashboard')}
-              >
-                Dashboard
-              </Button>
+        {/* Modelos Predictivos */}
+        <ListItem disablePadding>
+          <ListItemButton 
+            sx={{ 
+              '&:hover': { backgroundColor: '#4a6741' },
+              py: 1.5,
+            }}
+          >
+            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+              <AssessmentIcon />
+            </ListItemIcon>
+            <ListItemText primary="Modelos Predictivos" />
+            <ExpandMore />
+          </ListItemButton>
+        </ListItem>
 
-              <Button
-                ref={encuestasAnchorRef}
-                color="inherit"
-                startIcon={<AssignmentIcon />}
-                endIcon={<ArrowDropDownIcon />}
-                onClick={handleToggleEncuestas}
-              >
-                Encuestas
-              </Button>
-              <Popper
-                open={encuestasOpen}
-                anchorEl={encuestasAnchorRef.current}
-                role={undefined}
-                placement="bottom-start"
-                transition
-                disablePortal
-              >
-                {({ TransitionProps, placement }) => (
-                  <Grow
-                    {...TransitionProps}
-                    style={{
-                      transformOrigin:
-                        placement === 'bottom-start' ? 'left top' : 'left bottom',
-                    }}
-                  >
-                    <Paper>
-                      <ClickAwayListener onClickAway={(event) => handleClose(event as any)}>
-                        <MenuList>
-                          <MenuItem onClick={() => handleNavigate('/dashboard/encuestas/nueva')}>
-                            <ListItemIcon>
-                              <AddIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>Nueva Encuesta</ListItemText>
-                          </MenuItem>
-                          <MenuItem onClick={() => handleNavigate('/dashboard/encuestas')}>
-                            <ListItemIcon>
-                              <ListIcon fontSize="small" />
-                            </ListItemIcon>
-                            <ListItemText>Mis Encuestas</ListItemText>
-                          </MenuItem>
-                        </MenuList>
-                      </ClickAwayListener>
-                    </Paper>
-                  </Grow>
-                )}
-              </Popper>
+        {/* Identificación de plagas y enfermedades */}
+        <ListItem disablePadding>
+          <ListItemButton 
+            sx={{ 
+              '&:hover': { backgroundColor: '#4a6741' },
+              py: 1.5,
+            }}
+          >
+            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+              <TerrainIcon />
+            </ListItemIcon>
+            <ListItemText primary="Identificación de plagas y enfermedades" />
+          </ListItemButton>
+        </ListItem>
 
-              {isAdmin && (
-                <>
-                  <Button
-                    ref={adminAnchorRef}
-                    color="inherit"
-                    startIcon={<SettingsIcon />}
-                    endIcon={<ArrowDropDownIcon />}
-                    onClick={handleToggleAdmin}
-                  >
-                    Administración
-                  </Button>
-                  <Popper
-                    open={adminOpen}
-                    anchorEl={adminAnchorRef.current}
-                    role={undefined}
-                    placement="bottom-start"
-                    transition
-                    disablePortal
-                  >
-                    {({ TransitionProps, placement }) => (
-                      <Grow
-                        {...TransitionProps}
-                        style={{
-                          transformOrigin:
-                            placement === 'bottom-start' ? 'left top' : 'left bottom',
-                        }}
-                      >
-                        <Paper>
-                          <ClickAwayListener onClickAway={(event) => handleClose(event as any)}>
-                            <MenuList>
-                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/factores')}>
-                                <ListItemIcon>
-                                  <CategoryIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText>Factores</ListItemText>
-                              </MenuItem>
-                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/fincas')}>
-                                <ListItemIcon>
-                                  <PersonIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText>Fincas</ListItemText>
-                              </MenuItem>
-                              <MenuItem onClick={() => handleNavigate('/dashboard/admin/users')}>
-                                <ListItemIcon>
-                                  <PersonIcon fontSize="small" />
-                                </ListItemIcon>
-                                <ListItemText>usuarios</ListItemText>
-                              </MenuItem>
-                            </MenuList>
-                          </ClickAwayListener>
-                        </Paper>
-                      </Grow>
-                    )}
-                  </Popper>
-                </>
-              )}
-            </Box>
-          )}
+        {/* Sistema de Alertas */}
+        <ListItem disablePadding>
+          <ListItemButton 
+            sx={{ 
+              '&:hover': { backgroundColor: '#4a6741' },
+              py: 1.5,
+            }}
+          >
+            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+              <AssignmentIcon />
+            </ListItemIcon>
+            <ListItemText primary="Sistema de Alertas o recomendaciones" />
+          </ListItemButton>
+        </ListItem>
 
-          {/* Mobile menu button */}
-          {isMobile && (
-            <Box sx={{ flexGrow: 1 }}>
-              <IconButton
-                color="inherit"
-                onClick={handleMobileMenuOpen}
+        {/* Administración - Solo para admins */}
+        {isAdmin && (
+          <>
+            <Divider sx={{ borderColor: '#4a6741', my: 2 }} />
+            
+            <ListItem disablePadding>
+              <ListItemButton 
+                onClick={handleToggleAdmin}
+                sx={{ 
+                  '&:hover': { backgroundColor: '#4a6741' },
+                  py: 1.5,
+                }}
               >
-                <MenuIcon />
-              </IconButton>
-            </Box>
-          )}
+                <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Administración" />
+                {adminOpen ? <ExpandLess /> : <ExpandMore />}
+              </ListItemButton>
+            </ListItem>
+
+            <Collapse in={adminOpen} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton 
+                  sx={{ 
+                    pl: 6, 
+                    '&:hover': { backgroundColor: '#4a6741' },
+                    py: 1,
+                  }}
+                  onClick={() => handleNavigate('/dashboard/admin/factores')}
+                >
+                  <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                    <CategoryIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Factores" />
+                </ListItemButton>
+                <ListItemButton 
+                  sx={{ 
+                    pl: 6, 
+                    '&:hover': { backgroundColor: '#4a6741' },
+                    py: 1,
+                  }}
+                  onClick={() => handleNavigate('/dashboard/admin/fincas')}
+                >
+                  <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                    <TerrainIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Fincas" />
+                </ListItemButton>
+                <ListItemButton 
+                  sx={{ 
+                    pl: 6, 
+                    backgroundColor: '#2c5530',
+                    '&:hover': { backgroundColor: '#4a6741' },
+                    py: 1,
+                  }}
+                  onClick={() => handleNavigate('/dashboard/admin/users')}
+                >
+                  <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                    <PersonIcon fontSize="small" />
+                  </ListItemIcon>
+                  <ListItemText primary="Usuarios" />
+                </ListItemButton>
+              </List>
+            </Collapse>
+          </>
+        )}
+      </List>
+    </Box>
+  );
+
+  return (
+    <Box sx={{ display: 'flex' }}>
+      {/* AppBar */}
+      <AppBar
+        position="fixed"
+        sx={{
+          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
+          ml: { md: `${DRAWER_WIDTH}px` },
+          backgroundColor: '#a7c957',
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { md: 'none' } }}
+          >
+            <MenuIcon />
+          </IconButton>
+
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+            Dashboard
+          </Typography>
 
           {/* Profile Section */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography variant="body2" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
+              {user.nombre} {user.apellido}
+            </Typography>
             <IconButton
               size="large"
               edge="end"
@@ -318,7 +398,7 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
               </Avatar>
             </IconButton>
           </Box>
-          
+
           {/* Profile Menu */}
           <Menu
             id="menu-appbar"
@@ -359,76 +439,56 @@ const DashboardLayout = ({ children }:DashboardLayoutProps) => {
               Cerrar Sesión
             </MenuItem>
           </Menu>
-
-          {/* Mobile Navigation Menu */}
-          <Menu
-            anchorEl={mobileMenuAnchor}
-            open={Boolean(mobileMenuAnchor)}
-            onClose={handleMobileMenuClose}
-          >
-            <MenuItem onClick={() => handleNavigate('/dashboard')}>
-              <ListItemIcon>
-                <DashboardIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Dashboard</ListItemText>
-            </MenuItem>
-            <Divider />
-            <MenuItem disabled>
-              <Typography variant="subtitle2" color="text.secondary">
-                Encuestas
-              </Typography>
-            </MenuItem>
-            <MenuItem onClick={() => handleNavigate('/dashboard/encuestas/nueva')}>
-              <ListItemIcon>
-                <AddIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Nueva Encuesta</ListItemText>
-            </MenuItem>
-            <MenuItem onClick={() => handleNavigate('/dashboard/encuestas')}>
-              <ListItemIcon>
-                <ListIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Mis Encuestas</ListItemText>
-            </MenuItem>
-            <Divider />
-            <MenuItem onClick={() => handleNavigate('/dashboard/fincas')}>
-              <ListItemIcon>
-                <TerrainIcon fontSize="small" />
-              </ListItemIcon>
-              <ListItemText>Fincas</ListItemText>
-            </MenuItem>
-            {isAdmin && (
-              <>
-                <Divider />
-                <MenuItem disabled>
-                  <Typography variant="subtitle2" color="text.secondary">
-                    Administración
-                  </Typography>
-                </MenuItem>
-                <MenuItem onClick={() => handleNavigate('/dashboard/admin/factores')}>
-                  <ListItemIcon>
-                    <CategoryIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Factores</ListItemText>
-                </MenuItem>
-                <MenuItem onClick={() => handleNavigate('/dashboard/admin/usuarios')}>
-                  <ListItemIcon>
-                    <PersonIcon fontSize="small" />
-                  </ListItemIcon>
-                  <ListItemText>Usuarios</ListItemText>
-                </MenuItem>
-              </>
-            )}
-          </Menu>
         </Toolbar>
       </AppBar>
 
-      {/* Main Content */}
+      {/* Sidebar */}
+      <Box
+        component="nav"
+        sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
+      >
+        {/* Mobile drawer */}
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true,
+          }}
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: DRAWER_WIDTH,
+            },
+          }}
+        >
+          {drawer}
+        </Drawer>
+        
+        {/* Desktop drawer */}
+        <Drawer
+          variant="permanent"
+          sx={{
+            display: { xs: 'none', md: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
+              width: DRAWER_WIDTH,
+            },
+          }}
+          open
+        >
+          {drawer}
+        </Drawer>
+      </Box>
+
+      {/* Main content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
+          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           mt: 8, // Para dar espacio al AppBar
           backgroundColor: '#f5f5f5',
           minHeight: 'calc(100vh - 64px)',

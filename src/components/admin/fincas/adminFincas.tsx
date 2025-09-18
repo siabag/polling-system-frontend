@@ -39,6 +39,45 @@ import { Finca, FincaFilters } from '@/src/types/survey';
 // Solución para el error de Grid
 const Grid = (props: any) => <MuiGrid {...props} />;
 
+// Estilos para los filtros
+const filterStyles = {
+  filterContainer: {
+    p: 3,
+    mb: 3,
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+    backgroundColor: 'background.paper',
+  },
+  filterGrid: {
+    alignItems: 'center',
+  },
+  filterField: {
+    minWidth: '180px',
+    '& .MuiInputBase-root': {
+      borderRadius: '8px',
+      backgroundColor: 'background.paper',
+    },
+    '& .MuiOutlinedInput-root': {
+      '& fieldset': {
+        borderColor: 'divider',
+      },
+      '&:hover fieldset': {
+        borderColor: 'primary.light',
+      },
+      '&.Mui-focused fieldset': {
+        borderColor: 'primary.main',
+        borderWidth: '1px',
+      },
+    },
+  },
+  clearButton: {
+    height: '40px',
+    borderRadius: '8px',
+    textTransform: 'none',
+    fontWeight: 600,
+  },
+};
+
 const FincasPage = () => {
   const router = useRouter();
   const { user } = useAuth();
@@ -76,7 +115,7 @@ const FincasPage = () => {
       });
       
       setFincas(response.data);
-      setTotal(response.total);
+      setTotal(response.data.length);
       setTotalPages(response.totalPages);
       setError(null);
     } catch (error) {
@@ -179,8 +218,8 @@ const FincasPage = () => {
 
       {/* Filtros */}
       {showFilters && (
-        <Paper sx={{ p: 3, mb: 3 }}>
-          <Grid container spacing={2} alignItems="center">
+        <Paper sx={filterStyles.filterContainer}>
+          <Grid container spacing={2} sx={filterStyles.filterGrid}>
             <Grid item xs={12} sm={6} md={4}>
               <TextField
                 fullWidth
@@ -188,6 +227,9 @@ const FincasPage = () => {
                 value={filters.search || ''}
                 onChange={(e) => handleFilterChange('search', e.target.value)}
                 placeholder="Nombre, ubicación o propietario..."
+                variant="outlined"
+                size="small"
+                sx={filterStyles.filterField}
               />
             </Grid>
             <Grid item xs={12} sm={6} md={2}>
@@ -197,6 +239,8 @@ const FincasPage = () => {
                 color="error"
                 startIcon={<ClearIcon />}
                 onClick={clearFilters}
+                size="small"
+                sx={filterStyles.clearButton}
               >
                 Limpiar
               </Button>
