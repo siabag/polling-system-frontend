@@ -4,17 +4,15 @@ import { useRouter } from 'next/navigation';
 import useAuth from '@/src/hooks/useAuth';
 import {
   Box,
-  AppBar,
   Toolbar,
   Typography,
   IconButton,
   Avatar,
   Menu,
   MenuItem,
-  Drawer,
   List,
   ListItem,
-  ListItemButton, 
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Collapse,
@@ -23,7 +21,12 @@ import {
   CircularProgress,
   Container,
   Divider,
+  CssBaseline,
+  Tooltip,
 } from '@mui/material';
+import { styled, Theme, CSSObject } from '@mui/material/styles';
+import MuiDrawer from '@mui/material/Drawer';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import {
   Dashboard as DashboardIcon,
   Assignment as AssignmentIcon,
@@ -46,7 +49,76 @@ interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
-const DRAWER_WIDTH = 280;
+const drawerWidth = 280;
+
+const openedMixin = (theme: Theme): CSSObject => ({
+  width: drawerWidth,
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen,
+  }),
+  overflowX: 'hidden',
+});
+
+const closedMixin = (theme: Theme): CSSObject => ({
+  transition: theme.transitions.create('width', {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  overflowX: 'hidden',
+  width: `calc(${theme.spacing(7)} + 1px)`,
+  [theme.breakpoints.up('sm')]: {
+    width: `calc(${theme.spacing(8)} + 1px)`,
+  },
+});
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'flex-end',
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+}));
+
+interface AppBarProps extends MuiAppBarProps {
+  open?: boolean;
+}
+
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== 'open',
+})<AppBarProps>(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen,
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(['width', 'margin'], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
+}));
+
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
+  }),
+);
+
 const SIDEBAR_BG = '#2c5530';
 const SIDEBAR_HEADER_BG = '#1e3a20';
 const SIDEBAR_HOVER_COLOR = '#a39539';
@@ -56,15 +128,36 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false); // Cambiado a false
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [encuestasOpen, setEncuestasOpen] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
-  
+
   const { user, logout, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.push('/login');
+    }
+  }, [isAuthenticated, loading, router]);
+
+  const handleDrawerOpen = () => {
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setDrawerOpen(false);
+    setEncuestasOpen(false); // Cierra submenús al colapsar
+    setAdminOpen(false);
+  };
+
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    if (isMobile) {
+      setMobileOpen(!mobileOpen);
+    } else {
+      setDrawerOpen(!drawerOpen);
+    }
   };
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -88,266 +181,146 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   const handleToggleEncuestas = () => {
+    if (!drawerOpen) handleDrawerOpen();
     setEncuestasOpen(!encuestasOpen);
   };
 
   const handleToggleAdmin = () => {
+    if (!drawerOpen) handleDrawerOpen();
     setAdminOpen(!adminOpen);
   };
 
-  // Proteger ruta
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push('/login');
-    }
-  }, [isAuthenticated, loading, router]);
-
-  // Si está cargando o no está autenticado, mostrar loading
   if (loading || !isAuthenticated || !user) {
     return (
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '100vh',
-        }}
-      >
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <CircularProgress />
       </Box>
     );
   }
 
   const isAdmin = user?.rol === 'administrador';
-  const primaryColor = theme.palette.primary.main; // Obtener color principal del tema
+  const primaryColor = theme.palette.primary.main;
 
-  const drawer = (
-    <Box sx={{ height: '100%', backgroundColor: SIDEBAR_BG }}>
-      {/* Header del Sidebar */}
-      <Box
-        sx={{
-          p: 2,
-          display: 'flex',
-          alignItems: 'center',
-          backgroundColor: SIDEBAR_HEADER_BG,
-          color: 'white',
-        }}
-      >
-        <Box
-          sx={{
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            backgroundColor: primaryColor,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: 'bold',
-            mr: 2,
-          }}
-        >
-          EC
+  const drawerContent = (
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: SIDEBAR_BG }}>
+      <DrawerHeader sx={{ backgroundColor: SIDEBAR_HEADER_BG, justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', color: 'white', opacity: drawerOpen ? 1 : 0, transition: 'opacity 0.3s' }}>
+          <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: primaryColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', mr: 2, ml: 1 }}>
+            EC
+          </Box>
+          <Typography variant="h6" noWrap>
+            Encuestas Café
+          </Typography>
         </Box>
-        <Typography variant="h6" noWrap>
-          Encuestas Café
-        </Typography>
-      </Box>
-
+        <IconButton onClick={handleDrawerToggle} sx={{ color: 'white' }}>
+          {drawerOpen ? <ChevronLeftIcon /> : <MenuIcon />}
+        </IconButton>
+      </DrawerHeader>
       <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR }} />
-
-      {/* Menu Items */}
-      <List sx={{ color: 'white', py: 2 }}>
-        {/* Inicio/Dashboard */}
-        <ListItem disablePadding>
-          <ListItemButton 
-            onClick={() => handleNavigate('/dashboard')}
-            sx={{ 
-              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-              py: 1.5,
-            }}
-          >
-            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-              <DashboardIcon />
-            </ListItemIcon>
-            <ListItemText primary="Inicio" />
-          </ListItemButton>
-        </ListItem>
+      <List sx={{ color: 'white', flexGrow: 1 }}>
+        {[
+          { text: 'Inicio', icon: <DashboardIcon />, path: '/dashboard' },
+          { text: 'Monitoreo en tiempo real', icon: <AssessmentIcon />, path: '/dashboard/monitoreo' },
+        ].map((item) => (
+          <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
+            <Tooltip title={!drawerOpen ? item.text : ''} placement="right">
+              <ListItemButton
+                onClick={() => handleNavigate(item.path)}
+                sx={{
+                  minHeight: 48,
+                  justifyContent: drawerOpen ? 'initial' : 'center',
+                  px: 2.5,
+                  py: 1.5,
+                  '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
+                }}
+              >
+                <ListItemIcon sx={{ minWidth: 0, mr: drawerOpen ? 3 : 'auto', justifyContent: 'center', color: primaryColor }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} sx={{ opacity: drawerOpen ? 1 : 0 }} />
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+        ))}
 
         <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR, my: 1 }} />
 
-        {/* Monitoreo en tiempo real */}
-        <ListItem disablePadding>
-          <ListItemButton 
-            onClick={() => handleNavigate('/dashboard/monitoreo')}
-            sx={{ 
-              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-              py: 1.5,
-            }}
-          >
-            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-              <AssessmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Monitoreo en tiempo real" />
-          </ListItemButton>
-        </ListItem>
-
-        {/* Gestión tareas agroambientales */}
-        <ListItem disablePadding>
-          <ListItemButton 
-            onClick={handleToggleEncuestas}
-            sx={{ 
-              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-              py: 1.5,
-            }}
-          >
-            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-              <AgricultureIcon />
-            </ListItemIcon>
-            <ListItemText primary="Gestión tareas agroambientales" />
-            {encuestasOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItemButton>
-        </ListItem>
-
-        {/* Submenu de Gestión tareas */}
-        <Collapse in={encuestasOpen} timeout="auto" unmountOnExit>
-          <List component="div" disablePadding>
-            <ListItemButton 
-              sx={{ 
-                pl: 6, 
-                '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-                py: 1,
-              }}
-              onClick={() => handleNavigate('/dashboard/encuestas/nueva')}
+        {/* Gestión tareas agroambientales con submenú */}
+        <ListItem disablePadding sx={{ display: 'block' }}>
+          <Tooltip title={!drawerOpen ? "Gestión tareas agroambientales" : ''} placement="right">
+            <ListItemButton
+              onClick={handleToggleEncuestas}
+              sx={{ minHeight: 48, justifyContent: drawerOpen ? 'initial' : 'center', px: 2.5, py: 1.5, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }}
             >
-              <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
-                <AddIcon fontSize="small" />
+              <ListItemIcon sx={{ minWidth: 0, mr: drawerOpen ? 3 : 'auto', justifyContent: 'center', color: primaryColor }}>
+                <AgricultureIcon />
               </ListItemIcon>
+              <ListItemText primary="Gestión tareas agroambientales" sx={{ opacity: drawerOpen ? 1 : 0 }} />
+              {drawerOpen && (encuestasOpen ? <ExpandLess /> : <ExpandMore />)}
+            </ListItemButton>
+          </Tooltip>
+        </ListItem>
+        <Collapse in={encuestasOpen && drawerOpen} timeout="auto" unmountOnExit>
+          <List component="div" disablePadding>
+            <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }} onClick={() => handleNavigate('/dashboard/encuestas/nueva')}>
+              <ListItemIcon sx={{ color: primaryColor }}><AddIcon /></ListItemIcon>
               <ListItemText primary="Nueva Encuesta" />
             </ListItemButton>
-            <ListItemButton 
-              sx={{ 
-                pl: 6, 
-                '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-                py: 1,
-              }}
-              onClick={() => handleNavigate('/dashboard/encuestas')}
-            >
-              <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
-                <ListIcon fontSize="small" />
-              </ListItemIcon>
+            <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }} onClick={() => handleNavigate('/dashboard/encuestas')}>
+              <ListItemIcon sx={{ color: primaryColor }}><ListIcon /></ListItemIcon>
               <ListItemText primary="Mis Encuestas" />
             </ListItemButton>
           </List>
         </Collapse>
 
-        {/* Modelos Predictivos */}
-        <ListItem disablePadding>
-          <ListItemButton 
-            sx={{ 
-              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-              py: 1.5,
-            }}
-          >
-            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-              <AssessmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Modelos Predictivos" />
-            <ExpandMore />
-          </ListItemButton>
-        </ListItem>
+        {/* Otros items sin submenú */}
+        {[
+          { text: 'Modelos Predictivos', icon: <AssessmentIcon /> },
+          { text: 'Identificación de plagas', icon: <TerrainIcon /> },
+          { text: 'Sistema de Alertas', icon: <AssignmentIcon /> },
+        ].map((item) => (
+           <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
+            <Tooltip title={!drawerOpen ? item.text : ''} placement="right">
+              <ListItemButton sx={{ minHeight: 48, justifyContent: drawerOpen ? 'initial' : 'center', px: 2.5, py: 1.5, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }}>
+                <ListItemIcon sx={{ minWidth: 0, mr: drawerOpen ? 3 : 'auto', justifyContent: 'center', color: primaryColor }}>
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText primary={item.text} sx={{ opacity: drawerOpen ? 1 : 0 }} />
+              </ListItemButton>
+            </Tooltip>
+          </ListItem>
+        ))}
 
-        {/* Identificación de plagas y enfermedades */}
-        <ListItem disablePadding>
-          <ListItemButton 
-            sx={{ 
-              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-              py: 1.5,
-            }}
-          >
-            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-              <TerrainIcon />
-            </ListItemIcon>
-            <ListItemText primary="Identificación de plagas y enfermedades" />
-          </ListItemButton>
-        </ListItem>
-
-        {/* Sistema de Alertas */}
-        <ListItem disablePadding>
-          <ListItemButton 
-            sx={{ 
-              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-              py: 1.5,
-            }}
-          >
-            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-              <AssignmentIcon />
-            </ListItemIcon>
-            <ListItemText primary="Sistema de Alertas o recomendaciones" />
-          </ListItemButton>
-        </ListItem>
-
-        {/* Administración - Solo para admins */}
+        {/* Administración */}
         {isAdmin && (
           <>
-            <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR, my: 2 }} />
-            
-            <ListItem disablePadding>
-              <ListItemButton 
-                onClick={handleToggleAdmin}
-                sx={{ 
-                  '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-                  py: 1.5,
-                }}
-              >
-                <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Administración" />
-                {adminOpen ? <ExpandLess /> : <ExpandMore />}
-              </ListItemButton>
-            </ListItem>
-
-            <Collapse in={adminOpen} timeout="auto" unmountOnExit>
-              <List component="div" disablePadding>
-                <ListItemButton 
-                  sx={{ 
-                    pl: 6, 
-                    '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-                    py: 1,
-                  }}
-                  onClick={() => handleNavigate('/dashboard/admin/factores')}
+            <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR, my: 1 }} />
+            <ListItem disablePadding sx={{ display: 'block' }}>
+              <Tooltip title={!drawerOpen ? "Administración" : ''} placement="right">
+                <ListItemButton
+                  onClick={handleToggleAdmin}
+                  sx={{ minHeight: 48, justifyContent: drawerOpen ? 'initial' : 'center', px: 2.5, py: 1.5, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }}
                 >
-                  <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
-                    <CategoryIcon fontSize="small" />
+                  <ListItemIcon sx={{ minWidth: 0, mr: drawerOpen ? 3 : 'auto', justifyContent: 'center', color: primaryColor }}>
+                    <SettingsIcon />
                   </ListItemIcon>
+                  <ListItemText primary="Administración" sx={{ opacity: drawerOpen ? 1 : 0 }} />
+                  {drawerOpen && (adminOpen ? <ExpandLess /> : <ExpandMore />)}
+                </ListItemButton>
+              </Tooltip>
+            </ListItem>
+            <Collapse in={adminOpen && drawerOpen} timeout="auto" unmountOnExit>
+              <List component="div" disablePadding>
+                <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }} onClick={() => handleNavigate('/dashboard/admin/factores')}>
+                  <ListItemIcon sx={{ color: primaryColor }}><CategoryIcon /></ListItemIcon>
                   <ListItemText primary="Factores" />
                 </ListItemButton>
-                <ListItemButton 
-                  sx={{ 
-                    pl: 6, 
-                    '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-                    py: 1,
-                  }}
-                  onClick={() => handleNavigate('/dashboard/admin/fincas')}
-                >
-                  <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
-                    <TerrainIcon fontSize="small" />
-                  </ListItemIcon>
+                <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }} onClick={() => handleNavigate('/dashboard/admin/fincas')}>
+                  <ListItemIcon sx={{ color: primaryColor }}><TerrainIcon /></ListItemIcon>
                   <ListItemText primary="Fincas" />
                 </ListItemButton>
-                <ListItemButton 
-                  sx={{ 
-                    pl: 6, 
-                    backgroundColor: SIDEBAR_BG,
-                    '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
-                    py: 1,
-                  }}
-                  onClick={() => handleNavigate('/dashboard/admin/users')}
-                >
-                  <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
-                    <PersonIcon fontSize="small" />
-                  </ListItemIcon>
+                <ListItemButton sx={{ pl: 4, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }} onClick={() => handleNavigate('/dashboard/admin/users')}>
+                  <ListItemIcon sx={{ color: primaryColor }}><PersonIcon /></ListItemIcon>
                   <ListItemText primary="Usuarios" />
                 </ListItemButton>
               </List>
@@ -360,31 +333,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* AppBar ahora usa primaryColor */}
-      <AppBar
-        position="fixed"
-        sx={{
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-          ml: { md: `${DRAWER_WIDTH}px` },
-          backgroundColor: primaryColor, // Usar color primario del tema
-        }}
-      >
+      <CssBaseline />
+      <AppBar position="fixed" open={drawerOpen && !isMobile} sx={{ backgroundColor: primaryColor }}>
         <Toolbar>
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { md: 'none' } }}
+            edge="start"
+            sx={{
+              marginRight: 5,
+              ...(drawerOpen && !isMobile && { display: 'none' }),
+            }}
           >
             <MenuIcon />
           </IconButton>
-
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Dashboard
           </Typography>
-
-          {/* Profile Section */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
               {user.nombre} {user.apellido}
@@ -393,8 +359,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               size="large"
               edge="end"
               aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
               onClick={handleProfileMenuOpen}
               color="inherit"
             >
@@ -403,101 +367,61 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </Avatar>
             </IconButton>
           </Box>
-
-          {/* Profile Menu */}
           <Menu
             id="menu-appbar"
             anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right',
-            }}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             open={Boolean(anchorEl)}
             onClose={handleProfileMenuClose}
           >
             <MenuItem disabled>
-              <Typography variant="subtitle2">
-                {user.nombre} {user.apellido}
-              </Typography>
+              <Typography variant="subtitle2">{user.nombre} {user.apellido}</Typography>
             </MenuItem>
             <MenuItem disabled>
-              <Typography variant="caption" color="text.secondary">
-                {user.rol}
-              </Typography>
+              <Typography variant="caption" color="text.secondary">{user.rol}</Typography>
             </MenuItem>
             <Divider />
             <MenuItem onClick={() => { handleProfileMenuClose(); router.push('/dashboard/perfil'); }}>
-              <ListItemIcon>
-                <PersonIcon fontSize="small" />
-              </ListItemIcon>
+              <ListItemIcon><PersonIcon fontSize="small" /></ListItemIcon>
               Mi Perfil
             </MenuItem>
             <MenuItem onClick={handleLogout}>
-              <ListItemIcon>
-                <LogoutIcon fontSize="small" />
-              </ListItemIcon>
+              <ListItemIcon><LogoutIcon fontSize="small" /></ListItemIcon>
               Cerrar Sesión
             </MenuItem>
           </Menu>
         </Toolbar>
       </AppBar>
-
+      
       {/* Sidebar */}
-      <Box
-        component="nav"
-        sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
-      >
-        {/* Mobile drawer */}
-        <Drawer
+      {isMobile ? (
+        <MuiDrawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{
-            keepMounted: true,
-          }}
-          sx={{
-            display: { xs: 'block', md: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: DRAWER_WIDTH,
-            },
-          }}
+          ModalProps={{ keepMounted: true }}
+          sx={{ '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth } }}
         >
-          {drawer}
+          {drawerContent}
+        </MuiDrawer>
+      ) : (
+        <Drawer variant="permanent" open={drawerOpen}>
+          {drawerContent}
         </Drawer>
-        
-        {/* Desktop drawer */}
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: 'none', md: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
-              width: DRAWER_WIDTH,
-            },
-          }}
-          open
-        >
-          {drawer}
-        </Drawer>
-      </Box>
+      )}
 
       {/* Main content */}
       <Box
         component="main"
         sx={{
-          position: 'relative',
           flexGrow: 1,
           p: 3,
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-          mt: 8, // Para dar espacio al AppBar
+          position: 'relative',
+          mt: '64px',
           minHeight: 'calc(100vh - 64px)',
-          overflow: 'hidden', // Para contener el pseudo-elemento
+          overflow: 'hidden',
           '&::before': {
             content: '""',
             position: 'absolute',
@@ -508,12 +432,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             backgroundImage: "url('/images/coffee-field.jpg')",
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            opacity: 0.4, // Opacidad solo para el fondo
-            zIndex: -1, // Coloca el fondo detrás del contenido
+            opacity: 0.4,
+            zIndex: -1,
           },
         }}
       >
-        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
+        <Container maxWidth={false} sx={{ position: 'relative', zIndex: 1, p: '0 !important' }}>
           {children}
         </Container>
       </Box>
