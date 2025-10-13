@@ -14,7 +14,7 @@ import {
   Drawer,
   List,
   ListItem,
-  ListItemButton,
+  ListItemButton, 
   ListItemIcon,
   ListItemText,
   Collapse,
@@ -47,6 +47,10 @@ interface DashboardLayoutProps {
 }
 
 const DRAWER_WIDTH = 280;
+const SIDEBAR_BG = '#2c5530';
+const SIDEBAR_HEADER_BG = '#1e3a20';
+const SIDEBAR_HOVER_COLOR = '#a39539';
+const SIDEBAR_DIVIDER_COLOR = '#9eb897';
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const theme = useTheme();
@@ -115,16 +119,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   }
 
   const isAdmin = user?.rol === 'administrador';
+  const primaryColor = theme.palette.primary.main; // Obtener color principal del tema
 
   const drawer = (
-    <Box sx={{ height: '100%', backgroundColor: '#2c5530' }}>
+    <Box sx={{ height: '100%', backgroundColor: SIDEBAR_BG }}>
       {/* Header del Sidebar */}
       <Box
         sx={{
           p: 2,
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: '#1e3a20',
+          backgroundColor: SIDEBAR_HEADER_BG,
           color: 'white',
         }}
       >
@@ -133,7 +138,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             width: 40,
             height: 40,
             borderRadius: '50%',
-            backgroundColor: '#a7c957',
+            backgroundColor: primaryColor,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -149,7 +154,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </Typography>
       </Box>
 
-      <Divider sx={{ borderColor: '#4a6741' }} />
+      <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR }} />
 
       {/* Menu Items */}
       <List sx={{ color: 'white', py: 2 }}>
@@ -158,29 +163,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <ListItemButton 
             onClick={() => handleNavigate('/dashboard')}
             sx={{ 
-              '&:hover': { backgroundColor: '#4a6741' },
+              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
               py: 1.5,
             }}
           >
-            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
               <DashboardIcon />
             </ListItemIcon>
             <ListItemText primary="Inicio" />
           </ListItemButton>
         </ListItem>
 
-        <Divider sx={{ borderColor: '#4a6741', my: 1 }} />
+        <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR, my: 1 }} />
 
         {/* Monitoreo en tiempo real */}
         <ListItem disablePadding>
           <ListItemButton 
             onClick={() => handleNavigate('/dashboard/monitoreo')}
             sx={{ 
-              '&:hover': { backgroundColor: '#4a6741' },
+              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
               py: 1.5,
             }}
           >
-            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
               <AssessmentIcon />
             </ListItemIcon>
             <ListItemText primary="Monitoreo en tiempo real" />
@@ -192,11 +197,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <ListItemButton 
             onClick={handleToggleEncuestas}
             sx={{ 
-              '&:hover': { backgroundColor: '#4a6741' },
+              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
               py: 1.5,
             }}
           >
-            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
               <AgricultureIcon />
             </ListItemIcon>
             <ListItemText primary="Gestión tareas agroambientales" />
@@ -210,12 +215,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <ListItemButton 
               sx={{ 
                 pl: 6, 
-                '&:hover': { backgroundColor: '#4a6741' },
+                '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
                 py: 1,
               }}
               onClick={() => handleNavigate('/dashboard/encuestas/nueva')}
             >
-              <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+              <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
                 <AddIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Nueva Encuesta" />
@@ -223,12 +228,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <ListItemButton 
               sx={{ 
                 pl: 6, 
-                '&:hover': { backgroundColor: '#4a6741' },
+                '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
                 py: 1,
               }}
               onClick={() => handleNavigate('/dashboard/encuestas')}
             >
-              <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+              <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
                 <ListIcon fontSize="small" />
               </ListItemIcon>
               <ListItemText primary="Mis Encuestas" />
@@ -240,11 +245,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <ListItem disablePadding>
           <ListItemButton 
             sx={{ 
-              '&:hover': { backgroundColor: '#4a6741' },
+              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
               py: 1.5,
             }}
           >
-            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
               <AssessmentIcon />
             </ListItemIcon>
             <ListItemText primary="Modelos Predictivos" />
@@ -256,11 +261,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <ListItem disablePadding>
           <ListItemButton 
             sx={{ 
-              '&:hover': { backgroundColor: '#4a6741' },
+              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
               py: 1.5,
             }}
           >
-            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
               <TerrainIcon />
             </ListItemIcon>
             <ListItemText primary="Identificación de plagas y enfermedades" />
@@ -271,11 +276,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <ListItem disablePadding>
           <ListItemButton 
             sx={{ 
-              '&:hover': { backgroundColor: '#4a6741' },
+              '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
               py: 1.5,
             }}
           >
-            <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+            <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
               <AssignmentIcon />
             </ListItemIcon>
             <ListItemText primary="Sistema de Alertas o recomendaciones" />
@@ -285,17 +290,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         {/* Administración - Solo para admins */}
         {isAdmin && (
           <>
-            <Divider sx={{ borderColor: '#4a6741', my: 2 }} />
+            <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR, my: 2 }} />
             
             <ListItem disablePadding>
               <ListItemButton 
                 onClick={handleToggleAdmin}
                 sx={{ 
-                  '&:hover': { backgroundColor: '#4a6741' },
+                  '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
                   py: 1.5,
                 }}
               >
-                <ListItemIcon sx={{ color: '#a7c957', minWidth: 40 }}>
+                <ListItemIcon sx={{ color: primaryColor, minWidth: 40 }}>
                   <SettingsIcon />
                 </ListItemIcon>
                 <ListItemText primary="Administración" />
@@ -308,12 +313,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <ListItemButton 
                   sx={{ 
                     pl: 6, 
-                    '&:hover': { backgroundColor: '#4a6741' },
+                    '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
                     py: 1,
                   }}
                   onClick={() => handleNavigate('/dashboard/admin/factores')}
                 >
-                  <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                  <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
                     <CategoryIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="Factores" />
@@ -321,12 +326,12 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <ListItemButton 
                   sx={{ 
                     pl: 6, 
-                    '&:hover': { backgroundColor: '#4a6741' },
+                    '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
                     py: 1,
                   }}
                   onClick={() => handleNavigate('/dashboard/admin/fincas')}
                 >
-                  <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                  <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
                     <TerrainIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="Fincas" />
@@ -334,13 +339,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <ListItemButton 
                   sx={{ 
                     pl: 6, 
-                    backgroundColor: '#2c5530',
-                    '&:hover': { backgroundColor: '#4a6741' },
+                    backgroundColor: SIDEBAR_BG,
+                    '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
                     py: 1,
                   }}
                   onClick={() => handleNavigate('/dashboard/admin/users')}
                 >
-                  <ListItemIcon sx={{ color: '#a7c957', minWidth: 30 }}>
+                  <ListItemIcon sx={{ color: primaryColor, minWidth: 30 }}>
                     <PersonIcon fontSize="small" />
                   </ListItemIcon>
                   <ListItemText primary="Usuarios" />
@@ -355,13 +360,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* AppBar */}
+      {/* AppBar ahora usa primaryColor */}
       <AppBar
         position="fixed"
         sx={{
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           ml: { md: `${DRAWER_WIDTH}px` },
-          backgroundColor: '#a7c957',
+          backgroundColor: primaryColor, // Usar color primario del tema
         }}
       >
         <Toolbar>
@@ -486,15 +491,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <Box
         component="main"
         sx={{
+          position: 'relative',
           flexGrow: 1,
           p: 3,
           width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
           mt: 8, // Para dar espacio al AppBar
-          backgroundColor: '#f5f5f5',
           minHeight: 'calc(100vh - 64px)',
+          overflow: 'hidden', // Para contener el pseudo-elemento
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundImage: "url('/images/coffee-field.jpg')",
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            opacity: 0.4, // Opacidad solo para el fondo
+            zIndex: -1, // Coloca el fondo detrás del contenido
+          },
         }}
       >
-        <Container maxWidth="xl">
+        <Container maxWidth="xl" sx={{ position: 'relative', zIndex: 1 }}>
           {children}
         </Container>
       </Box>

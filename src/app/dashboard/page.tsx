@@ -8,9 +8,7 @@ import {
   Typography, 
   Container, 
   Paper, 
-  Avatar, 
-  Button, 
-  Divider,
+  Avatar,
   CircularProgress
 } from '@mui/material';
 
@@ -81,8 +79,8 @@ const DashboardPage = () => {
             p: 2, 
             mb: 4,
             display: 'flex',
-            alignItems: 'center',
-            backgroundColor: 'secondary.light', // Un verde suave
+            alignItems: 'left',
+            backgroundColor: "#b6bf82", // Un verde suave
             color: 'secondary.contrastText',
             borderRadius: '8px',
           }}
@@ -102,7 +100,7 @@ const DashboardPage = () => {
             <Typography variant="h6">
               ¡Hola, {user.nombre}!
             </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+            <Typography variant="body2">
               Qué bueno verte de nuevo.
             </Typography>
           </Box>

@@ -20,8 +20,7 @@ body {
   background-color: #f5f5f5; /* Color de fondo base */
 }
 
-/* Estilos para el fondo con imagen */
-.body-with-bg::before {
+.auth-layout-bg::before {
   content: '';
   position: fixed;
   top: 0;
@@ -34,4 +33,24 @@ body {
   background-repeat: no-repeat;
   opacity: 0.4; /* Aquí controlas la transparencia (40%) */
   z-index: -1; /* Para que se quede detrás del contenido */
+}
+
+.auth-page-body {
+  position: relative;
+  background-color: #f0f2f5; /* Color de fondo por si la imagen no carga */
+}
+
+.auth-page-body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/images/coffee-beans.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.4; /* Opacidad del 40% */
+  z-index: -1;
 }
