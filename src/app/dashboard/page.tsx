@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useAuth from '@/src/hooks/useAuth';
+
 import { 
   Box, 
   Typography, 
@@ -70,66 +71,53 @@ const DashboardPage = () => {
     );
   }
   
-  return (
+    return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4 }}>
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <Avatar 
+        {/* Mensaje de bienvenida rediseñado */}
+        <Paper 
+          elevation={0} 
+          sx={{ 
+            p: 2, 
+            mb: 4,
+            display: 'flex',
+            alignItems: 'center',
+            backgroundColor: 'secondary.light', // Un verde suave
+            color: 'secondary.contrastText',
+            borderRadius: '8px',
+          }}
+        >
+          <Avatar 
               sx={{ 
-                bgcolor: '#a7c957', 
-                width: 64, 
-                height: 64,
-                mr: 2
+                bgcolor: 'primary.main', 
+                width: 48, 
+                height: 48,
+                mr: 2,
+                fontSize: '1.2rem'
               }}
             >
               {user.nombre.charAt(0)}{user.apellido.charAt(0)}
-            </Avatar>
-            <Box>
-              <Typography variant="h4">
-                Bienvenido, {user.nombre} {user.apellido}
-              </Typography>
-              <Typography variant="subtitle1" color="text.secondary">
-                {user.correo}
-              </Typography>
-            </Box>
-          </Box>
-          
-          <Divider sx={{ my: 2 }} />
-          
+          </Avatar>
           <Box>
-            <Typography variant="h6" gutterBottom>
-              Información del usuario:
+            <Typography variant="h6">
+              ¡Hola, {user.nombre}!
             </Typography>
-            <Typography>
-              <strong>Rol:</strong> {user.rol}
+            <Typography variant="body2" sx={{ opacity: 0.9 }}>
+              Qué bueno verte de nuevo.
             </Typography>
-            <Typography>
-              <strong>Correo:</strong> {user.correo}
-            </Typography>
-          </Box>
-          
-          <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-            <Button 
-              variant="outlined" 
-              color="error"
-              onClick={logout}
-            >
-              Cerrar sesión
-            </Button>
           </Box>
         </Paper>
         
-        {/* <Box sx={{ mt: 4 }}>
-          <Typography variant="h5" gutterBottom>
+        {/* Aquí puedes agregar más contenido del dashboard */}
+        <Typography variant="h5" gutterBottom>
             Acciones disponibles
-          </Typography>
-          <Paper elevation={2} sx={{ p: 3, mt: 2 }}>
+        </Typography>
+        <Paper elevation={2} sx={{ p: 3, mt: 2 }}>
             <Typography variant="body1">
               Esta es una página de dashboard de prueba.
             </Typography>
-          </Paper>
-        </Box> */}
+        </Paper>
+
       </Box>
     </Container>
   );
