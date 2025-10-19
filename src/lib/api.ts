@@ -39,7 +39,15 @@ api.interceptors.response.use(
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login?expired=true';
+        // Solo redirigir si no estamos ya en una página de autenticación
+        const path = window.location.pathname + window.location.search;
+        if (!path.startsWith('/login') && !path.startsWith('/register')) {
+          // Use replaceState to avoid adding an extra history entry
+          const newUrl = '/login?expired=true';
+          window.history.replaceState({}, '', newUrl);
+          // Also navigate so Next.js updates client routing when possible
+          window.location.href = newUrl;
+        }
       }
       return Promise.reject(error);
     }

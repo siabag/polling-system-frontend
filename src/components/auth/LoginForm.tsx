@@ -97,8 +97,7 @@ const LoginForm = () => {
     try {
       // La redirección ahora se maneja directamente en el método login del AuthContext
       await login(data);
-      router.push('/login');
-      router.push('/login?expired=true');
+      // No realizar redirecciones adicionales aquí — el AuthContext maneja la navegación después del login.
     } catch (err) {
       console.error("Error en el submit:", err);
     }
