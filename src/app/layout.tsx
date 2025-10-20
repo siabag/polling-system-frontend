@@ -19,7 +19,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${inter.variable} font-sans`}>
+      {/* Añade la clase 'body-with-bg' aquí */}
+      <body className={`${inter.variable} font-sans body-with-bg`}>
         <AuthProviderWrapper>
           {children}
         </AuthProviderWrapper>

@@ -165,14 +165,7 @@ const NuevaEncuestaForm = () => {
                   onChange={field.onChange}
                   error={!!errors.tipo_encuesta_id}
                   helperText={errors.tipo_encuesta_id?.message}
-                  variant="outlined"
-                  sx={{
-                    width: '150px',
-                    minWidth: '150px',
-                    '& .MuiInputBase-root': {
-                      width: '150px'
-                    }
-                  }}
+                  variant="outlined"                 
                 >
                   {tiposEncuesta.map((tipo) => (
                     <MenuItem key={tipo.id} value={tipo.id}>
@@ -199,13 +192,6 @@ const NuevaEncuestaForm = () => {
                   error={!!errors.finca_id}
                   helperText={errors.finca_id?.message}
                   variant="outlined"
-                  sx={{
-                    width: '150px',
-                    minWidth: '150px',
-                    '& .MuiInputBase-root': {
-                      width: '150px'
-                    }
-                  }}
                 >
                   {fincas.map((finca) => (
                     <MenuItem key={finca.id} value={finca.id}>

@@ -143,7 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (state.isAuthenticated && (path === '/login' || path === '/register')) {
         console.log("Authenticated user in public page, redirecting to dashboard");
         setTimeout(() => {
-          router.push('/dashboard');
+          router.replace('/dashboard');
         }, 100);
       }
     }
@@ -164,9 +164,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setAuthToken(data.access_token);
       dispatch({ type: 'LOGIN_SUCCESS', payload: { user: data.user } });
       
-      // Redirigir explícitamente después del login
-      console.log("Redirecting to dashboard after login");
-      router.push('/dashboard');
+  // Redirigir explícitamente después del login usando replace para no añadir al historial
+  console.log("Redirecting to dashboard after login");
+  router.replace('/dashboard');
     } catch (error) {
       console.error("Login error:", error);
       dispatch({ type: 'AUTH_ERROR', payload: getErrorMessage(error) });

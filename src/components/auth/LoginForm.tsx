@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import useAuth from '@/src/hooks/useAuth';
 
@@ -33,6 +33,7 @@ const schema = yup.object().shape({
 
 const LoginForm = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { login, error, loading } = useAuth();
   const [alert, setAlert] = useState({ open: false, message: '', severity: 'info' });
   const [submitAttempted, setSubmitAttempted] = useState(false);
@@ -96,6 +97,7 @@ const LoginForm = () => {
     try {
       // La redirección ahora se maneja directamente en el método login del AuthContext
       await login(data);
+      // No realizar redirecciones adicionales aquí — el AuthContext maneja la navegación después del login.
     } catch (err) {
       console.error("Error en el submit:", err);
     }
@@ -105,14 +107,14 @@ const LoginForm = () => {
     setAlert(prev => ({ ...prev, open: false }));
   };
 
-  // Función para manejar el inicio de sesión rápido (datos de prueba)
-  const handleQuickLogin = (email: string, password: string) => {
-    try {
-      login({ email, password });
-    } catch (err) {
-      console.error("Error en quick login:", err);
+  // Después de mostrar la alerta, limpia el parámetro de la URL
+  useEffect(() => {
+    if (alert.open && searchParams.get('expired') === 'true') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('expired');
+      window.history.replaceState({}, '', url.pathname + url.search);
     }
-  };
+  }, [alert.open, searchParams]);
 
   return (
     <Box
