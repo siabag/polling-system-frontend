@@ -5,6 +5,7 @@ import { AuthProvider } from '@/src/context/AuthContext';
 import { ThemeProvider } from '@mui/material/styles'; 
 import CssBaseline from '@mui/material/CssBaseline';
 import customTheme from '@/src/theme/MuiTheme'; // Importa el tema desde la nueva ubicación
+// Nota: La hoja de estilos globales se importa únicamente en `src/app/layout.tsx`.
 
 export function AuthProviderWrapper({ 
   children 
