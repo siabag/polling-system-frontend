@@ -21,7 +21,7 @@ const LoginPage = () => {
     // Mientras no estemos en el cliente, mostramos un contenedor vacío
     // del mismo tamaño para evitar saltos visuales durante la hidratación
     return (
-      <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-[100dvh] bg-white flex flex-col justify-center px-4">
         {/* Placeholder mientras se hidrata */}
       </div>
     );
