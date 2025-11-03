@@ -1,6 +1,7 @@
 'use client';
 import React, { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -27,7 +28,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   }, []);
 
   return (
-    <div className="relative min-h-screen flex flex-col justify-center items-center p-4">
+    <div className="relative min-h-[100dvh] flex flex-col justify-center items-center p-4">
       {/* 1. Capa de Fondo (Background Layer) */}
       <div
         className="absolute inset-0 bg-cover bg-center"
@@ -41,9 +42,15 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
       {/* 2. Contenido (Header y Formulario) */}
       <div className="w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-20 h-20 relative">
-            <div className="w-20 h-20 flex items-center justify-center bg-[#a7c957] text-white text-3xl font-bold rounded-full">
-              EC
+          <div className="w-24 h-24 relative rounded-full bg-white p-2 shadow-md">
+            <div className="relative w-full h-full">
+              <Image
+                src="/images/logo.jpg"
+                alt="Logo Sistema de Encuestas"
+                fill
+                className="rounded-full object-contain"
+                priority
+              />
             </div>
           </div>
         </div>
@@ -55,7 +62,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
         )}
       </div>
 
-      <div className="mt-8 w-full sm:max-w-md">
+      <div className="mt-8 w-full max-w-md px-2 sm:px-0">
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           {children}
         </div>

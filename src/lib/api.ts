@@ -41,7 +41,7 @@ api.interceptors.response.use(
         localStorage.removeItem('user');
         // Solo redirigir si no estamos ya en una página de autenticación
         const path = window.location.pathname + window.location.search;
-        if (!path.startsWith('/login') && !path.startsWith('/register')) {
+  if (!path.startsWith('/login')) {
           // Use replaceState to avoid adding an extra history entry
           const newUrl = '/login?expired=true';
           window.history.replaceState({}, '', newUrl);
@@ -79,14 +79,6 @@ interface LoginCredentials {
   contrasena: string;
 }
 
-interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  roleId?: number;
-}
-
 interface UserFilters {
   rol?: string;
   activo?: boolean;
@@ -122,22 +114,6 @@ export const authApi = {
   login: async (correo: string, contrasena: string): Promise<ApiResponse> => {
     try {
       const response = await api.post<ApiResponse>('/api/auth/login', { correo, contrasena });
-      return response.data;
-    } catch (error) {
-      throw error;
-    }
-  },
-  
-  register: async (userData: RegisterData): Promise<ApiResponse> => {
-    try {
-      const payload = {
-        correo: userData.email,
-        contrasena: userData.password,
-        nombre: userData.firstName,
-        apellido: userData.lastName,
-        rol_id: userData.roleId,
-      };
-      const response = await api.post<ApiResponse>('/api/auth/register', payload);
       return response.data;
     } catch (error) {
       throw error;

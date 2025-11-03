@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import useAuth from '@/src/hooks/useAuth';
 import {
   Box,
@@ -205,8 +206,29 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: SIDEBAR_BG }}>
       <DrawerHeader sx={{ backgroundColor: SIDEBAR_HEADER_BG, justifyContent: 'space-between' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', color: 'white', opacity: drawerOpen ? 1 : 0, transition: 'opacity 0.3s' }}>
-          <Box sx={{ width: 40, height: 40, borderRadius: '50%', backgroundColor: primaryColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', mr: 2, ml: 1 }}>
-            EC
+          <Box sx={{ 
+            width: 40, 
+            height: 40, 
+            position: 'relative',
+            borderRadius: '50%', 
+            backgroundColor: 'white',
+            padding: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mr: 2, 
+            ml: 1,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+              <Image
+                src="/images/logo.jpg"
+                alt="Logo"
+                fill
+                style={{ borderRadius: '50%', objectFit: 'contain' }}
+                priority
+              />
+            </Box>
           </Box>
           <Typography variant="h6" noWrap>
             Encuestas Café
@@ -348,9 +370,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            Dashboard
-          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+            <Box sx={{ position: 'relative', height: 50, width: 180 }}>
+              <Image
+                src="/images/LogoIB.jpg"
+                alt="Logo IBERO"
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </Box>
+          </Box>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography variant="body2" sx={{ mr: 2, display: { xs: 'none', sm: 'block' } }}>
               {user.nombre} {user.apellido}

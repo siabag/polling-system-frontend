@@ -1,4 +1,4 @@
-import { LoginResponse, AuthCredentials, RegisterUserData } from '../types/auth';
+import { LoginResponse, AuthCredentials } from '../types/auth';
 import { CreateUserData, UpdateUserData, ChangePasswordData, UserFilters } from '../types/user';
 import { 
   mockUsers, 
@@ -41,24 +41,6 @@ export class MockApi {
       access_token: token,
       user,
     };
-  }
-  
-  async register(userData: RegisterUserData): Promise<void> {
-    await delay();
-    
-    const existingUser = findUserBycorreo(userData.email);
-    
-    if (existingUser) {
-      throw new Error('El correo electrónico ya está registrado');
-    }
-    
-    createUser({
-      firstName: userData.firstName,
-      lastName: userData.lastName,
-      email: userData.email,
-      password: userData.password,
-      roleId: userData.roleId,
-    });
   }
   
   async forgotPassword(email: string): Promise<void> {
