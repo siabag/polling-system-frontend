@@ -2,11 +2,13 @@
 
 import type { NextPage } from 'next';
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Head from 'next/head';
 import useAuth from '@/src/hooks/useAuth';
 import DashboardLayout from '@/src/components/layout/DashboardLayout';
 import UserList from '@/src/components/users/UserList';
+
+export const dynamic = 'force-dynamic';
 
 const UsersPage: NextPage = () => {
   const { isAuthenticated, user, loading } = useAuth();
