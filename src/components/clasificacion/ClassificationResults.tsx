@@ -18,7 +18,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Error as ErrorIcon,
 } from '@mui/icons-material';
-import { ClassificationResult } from '@/types/classification';
+import { ClassificationResult } from '@/src/types/classification';
 import { StatisticsCard } from './StatisticsCard';
 
 interface ClassificationResultsProps {

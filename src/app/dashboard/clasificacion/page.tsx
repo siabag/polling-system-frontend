@@ -1,4 +1,4 @@
-// src/app/clasificacion/page.tsx
+
 
 'use client';
 
