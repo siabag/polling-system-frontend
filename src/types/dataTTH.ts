@@ -8,6 +8,7 @@ export interface DataTTHGrouped {
   humedad_ambiente: DataPoint[];
   temperatura_suelo: DataPoint[];
   humedad_suelo: DataPoint[];
+  conductividad_suelo: DataPoint[];
 }
 
 export interface DataTTHResponse {
