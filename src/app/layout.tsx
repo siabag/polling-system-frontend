@@ -1,6 +1,7 @@
 import { Inter } from "next/font/google";
 import "../styles/globals.css";
 import { AuthProviderWrapper } from "@/src/components/auth/AuthProviderWrapper";
+import EmotionRegistry from "@/src/theme/EmotionRegistry";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -19,11 +20,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
+      <head>
+        <meta name="emotion-insertion-point" content="" />
+      </head>
       {/* Añade la clase 'body-with-bg' aquí */}
       <body className={`${inter.variable} font-sans body-with-bg`}>
-        <AuthProviderWrapper>
-          {children}
-        </AuthProviderWrapper>
+        <EmotionRegistry>
+          <AuthProviderWrapper>
+            {children}
+          </AuthProviderWrapper>
+        </EmotionRegistry>
       </body>
     </html>
   );

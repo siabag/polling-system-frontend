@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   Box,
@@ -15,6 +16,7 @@ import {
 import {
   Refresh as RefreshIcon,
   FileDownload as FileDownloadIcon,
+  Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 import { dataTTHApi } from '@/src/lib/apiDataTTH';
 import { DataPoint } from '@/src/types/dataTTH';
@@ -60,6 +62,7 @@ const Dashboard = () => {
   const [fechaHasta, setFechaHasta] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
   
   // Estados para los datos de cada métrica
   const [temperaturaAmbiente, setTemperaturaAmbiente] = useState<any[]>([]);
@@ -281,6 +284,15 @@ const Dashboard = () => {
                 sx={{ minWidth: 120 }}
               >
                 {loading ? 'Cargando...' : 'Actualizar'}
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<AssessmentIcon />}
+                onClick={() => router.push('/dashboard/reportes')}
+                disabled={loading}
+                sx={{ minWidth: 140 }}
+              >
+                Reportes
               </Button>
               <Button
                 variant="contained"
