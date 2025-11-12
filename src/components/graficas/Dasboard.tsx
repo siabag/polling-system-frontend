@@ -22,7 +22,10 @@ import { dataTTHApi } from '@/src/lib/apiDataTTH';
 import { DataPoint } from '@/src/types/dataTTH';
 
 // Función para formatear datos de la API al formato del gráfico
-const formatDataForChart = (dataPoints: DataPoint[]) => {
+const formatDataForChart = (dataPoints: DataPoint[] | undefined) => {
+  if (!dataPoints || !Array.isArray(dataPoints)) {
+    return [];
+  }
   return dataPoints.map(point => {
     const date = new Date(point.fecha_hora);
     const day = String(date.getDate()).padStart(2, '0');
@@ -120,18 +123,35 @@ const Dashboard = () => {
         };
       }
 
+      console.log('Solicitando datos con params:', params);
       const response = await dataTTHApi.getData(params);
+      console.log('Respuesta del servidor:', response);
 
-      if (response.success) {
+      if (response.success && response.data) {
         setTemperaturaAmbiente(formatDataForChart(response.data.temperatura_ambiente));
         setHumedadAmbiente(formatDataForChart(response.data.humedad_ambiente));
         setTemperaturaSuelo(formatDataForChart(response.data.temperatura_suelo));
         setHumedadSuelo(formatDataForChart(response.data.humedad_suelo));
-        setConductividadSuelo(formatDataForChart(response.data.conductividad_suelo || []));
+        setConductividadSuelo(formatDataForChart(response.data.conductividad_suelo));
+      } else {
+        console.warn('Respuesta sin datos válidos:', response);
+        setError(response.message || 'No se recibieron datos del servidor');
+        // Inicializar con arrays vacíos para evitar errores
+        setTemperaturaAmbiente([]);
+        setHumedadAmbiente([]);
+        setTemperaturaSuelo([]);
+        setHumedadSuelo([]);
+        setConductividadSuelo([]);
       }
     } catch (err: any) {
       console.error('Error cargando datos:', err);
-      setError(err.response?.data?.message || 'Error al cargar los datos');
+      setError(err.response?.data?.message || err.message || 'Error al cargar los datos');
+      // Inicializar con arrays vacíos para evitar errores
+      setTemperaturaAmbiente([]);
+      setHumedadAmbiente([]);
+      setTemperaturaSuelo([]);
+      setHumedadSuelo([]);
+      setConductividadSuelo([]);
     } finally {
       setLoading(false);
     }
