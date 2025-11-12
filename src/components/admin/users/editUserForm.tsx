@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import useUsers from '@/src/hooks/useUsers';
 import useAuth from '@/src/hooks/useAuth';
+import { User } from '@/src/types/auth';
 import {
   Box,
   Paper,
@@ -543,7 +544,7 @@ export default function EditarUsuarioForm() {
           Volver
         </Button>
         <Typography variant="h4" component="h1" fontWeight="600">
-          Editar Usuario: {userData.nombre} {userData.apellido}
+          Editar Usuario: {userData?.nombre} {userData?.apellido}
         </Typography>
       </Box>
       

@@ -17,8 +17,8 @@ import {
 // Esquema de validación para crear/editar encuestas
 const schema = yup.object().shape({
   fecha_aplicacion: yup.string().required('La fecha es requerida'),
-  tipo_encuesta_id: yup.number().required('El tipo de encuesta es requerido'),
-  finca_id: yup.number().required('La finca es requerida'),
+  tipo_encuesta_id: yup.number().transform((value) => (isNaN(value) ? undefined : value)).required('El tipo de encuesta es requerido'),
+finca_id: yup.number().transform((value) => (isNaN(value) ? undefined : value)).required('La finca es requerida'),
   observaciones: yup.string(),
   completada: yup.boolean(),
   respuestas: yup.array().of(
@@ -59,8 +59,8 @@ export const useEncuestaForm = ({ userId, encuestaId, onSuccess, onError }: UseE
     resolver: yupResolver(schema),
     defaultValues: {
       fecha_aplicacion: new Date().toISOString().split('T')[0],
-      tipo_encuesta_id: 0,
-      finca_id: 0,
+      tipo_encuesta_id: '' as any,
+      finca_id: '' as any,
       observaciones: '',
       completada: false,
       respuestas: [],

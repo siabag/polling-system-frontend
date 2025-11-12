@@ -21,6 +21,7 @@ import {
   BarChart as MonitorIcon,
 } from '@mui/icons-material';
 
+const Grid = (props: any) => <MuiGrid {...props} />;
 const DashboardPage = () => {
   const { user, isAuthenticated, loading, logout } = useAuth();
   const router = useRouter();

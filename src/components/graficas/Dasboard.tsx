@@ -33,7 +33,7 @@ const formatDataForChart = (dataPoints: DataPoint[]) => {
     
     return {
       timestamp: `${day}/${month}/${year} ${hours}:${minutes}`,
-      fullDate: point.fecha_hora, // Guardamos la fecha completa para el tooltip
+      fullDate: point.fecha_hora,
       valor: point.valor
     };
   });
@@ -69,6 +69,7 @@ const Dashboard = () => {
   const [humedadAmbiente, setHumedadAmbiente] = useState<any[]>([]);
   const [temperaturaSuelo, setTemperaturaSuelo] = useState<any[]>([]);
   const [humedadSuelo, setHumedadSuelo] = useState<any[]>([]);
+  const [conductividadSuelo, setConductividadSuelo] = useState<any[]>([]);
 
   // Inicializar fechas por defecto
   useEffect(() => {
@@ -79,7 +80,7 @@ const Dashboard = () => {
     setFechaDesde(firstDayOfMonth.toISOString().split('T')[0]);
   }, []);
 
-  // Cargar datos solo cuando cambia el rango predefinido (no personalizado)
+  // Cargar datos solo cuando cambia el rango predefinido
   useEffect(() => {
     if (fechaDesde && fechaHasta && rangoFecha !== 'personalizado') {
       loadData();
@@ -113,7 +114,6 @@ const Dashboard = () => {
           end_date: now.toISOString().split('T')[0]
         };
       } else {
-        // ultimo-mes (valor por defecto)
         params = {
           start_date: fechaDesde,
           end_date: fechaHasta
@@ -127,6 +127,7 @@ const Dashboard = () => {
         setHumedadAmbiente(formatDataForChart(response.data.humedad_ambiente));
         setTemperaturaSuelo(formatDataForChart(response.data.temperatura_suelo));
         setHumedadSuelo(formatDataForChart(response.data.humedad_suelo));
+        setConductividadSuelo(formatDataForChart(response.data.conductividad_suelo || []));
       }
     } catch (err: any) {
       console.error('Error cargando datos:', err);
@@ -137,7 +138,6 @@ const Dashboard = () => {
   };
 
   const handleActualizar = () => {
-    // Validar que las fechas sean válidas antes de buscar
     if (fechaDesde && fechaHasta && fechaDesde <= fechaHasta) {
       loadData();
     }
@@ -150,6 +150,7 @@ const Dashboard = () => {
       humedad_ambiente: humedadAmbiente[index]?.valor || '',
       temperatura_suelo: temperaturaSuelo[index]?.valor || '',
       humedad_suelo: humedadSuelo[index]?.valor || '',
+      conductividad_suelo: conductividadSuelo[index]?.valor || '',
     }));
 
     const filename = `datos_ambientales_${fechaDesde}_${fechaHasta}.csv`;
@@ -178,22 +179,18 @@ const Dashboard = () => {
         setFechaHasta(now.toISOString().split('T')[0]);
         break;
       case 'personalizado':
-        // No hacer nada, dejar que el usuario seleccione
         break;
     }
   };
 
   const handleFechaDesdeChange = (newFechaDesde: string) => {
     setFechaDesde(newFechaDesde);
-    
-    // Si la fecha de inicio es mayor que la fecha fin, ajustar la fecha fin
     if (newFechaDesde > fechaHasta) {
       setFechaHasta(newFechaDesde);
     }
   };
 
   const handleFechaHastaChange = (newFechaHasta: string) => {
-    // Si la fecha fin es menor que la fecha de inicio, ajustar la fecha fin a la fecha de inicio
     if (newFechaHasta < fechaDesde) {
       setFechaHasta(fechaDesde);
     } else {
@@ -210,7 +207,7 @@ const Dashboard = () => {
             Monitoreo Ambiental
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Sistema de medición de temperatura y humedad en tiempo real
+            Sistema de medición de temperatura, humedad y conductividad en tiempo real
           </Typography>
         </Box>
 
@@ -223,7 +220,6 @@ const Dashboard = () => {
             alignItems: { xs: 'stretch', md: 'flex-start' },
             justifyContent: 'space-between'
           }}>
-            {/* Filtros de Fecha */}
             <Box sx={{ 
               display: 'flex', 
               flexDirection: { xs: 'column', sm: 'row' },
@@ -270,7 +266,6 @@ const Dashboard = () => {
               )}
             </Box>
 
-            {/* Botones de Acción */}
             <Box sx={{ 
               display: 'flex', 
               gap: 2,
@@ -307,24 +302,21 @@ const Dashboard = () => {
           </Box>
         </Paper>
 
-        {/* Mensaje de Error */}
         {error && (
           <Alert severity="error" sx={{ mb: 4 }} onClose={() => setError(null)}>
             {error}
           </Alert>
         )}
 
-        {/* Mensaje de Cargando */}
         {loading && (
           <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
             <CircularProgress />
           </Box>
         )}
 
-        {/* Gráficas */}
         {!loading && (
           <>
-            {/* Gráfica de Temperatura Ambiente */}
+            {/* Temperatura Ambiente */}
             <Paper sx={{ p: 4, mb: 4 }}>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom fontWeight="600">
@@ -377,7 +369,7 @@ const Dashboard = () => {
               )}
             </Paper>
 
-            {/* Gráfica de Humedad Ambiente */}
+            {/* Humedad Ambiente */}
             <Paper sx={{ p: 4, mb: 4 }}>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom fontWeight="600">
@@ -431,7 +423,7 @@ const Dashboard = () => {
               )}
             </Paper>
 
-            {/* Gráfica de Temperatura del Suelo */}
+            {/* Temperatura del Suelo */}
             <Paper sx={{ p: 4, mb: 4 }}>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom fontWeight="600">
@@ -484,8 +476,8 @@ const Dashboard = () => {
               )}
             </Paper>
 
-            {/* Gráfica de Humedad del Suelo */}
-            <Paper sx={{ p: 4 }}>
+            {/* Humedad del Suelo */}
+            <Paper sx={{ p: 4, mb: 4 }}>
               <Box sx={{ mb: 3 }}>
                 <Typography variant="h6" gutterBottom fontWeight="600">
                   Humedad del Suelo
@@ -501,8 +493,12 @@ const Dashboard = () => {
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis 
                       dataKey="timestamp" 
-                      tick={{ fontSize: 12 }}
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
                       stroke="#94a3b8"
+                      height={80}
+                      interval="preserveStartEnd"
                     />
                     <YAxis 
                       tick={{ fontSize: 12 }}
@@ -516,6 +512,7 @@ const Dashboard = () => {
                         borderRadius: '8px',
                         boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                       }}
+                      labelFormatter={(value) => `Fecha: ${value}`}
                     />
                     <Legend />
                     <Line 
@@ -525,6 +522,59 @@ const Dashboard = () => {
                       strokeWidth={2}
                       dot={false}
                       name="Humedad (%)"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              ) : (
+                <Alert severity="info">No hay datos disponibles para este rango de fechas</Alert>
+              )}
+            </Paper>
+
+            {/* Conductividad Eléctrica del Suelo */}
+            <Paper sx={{ p: 4 }}>
+              <Box sx={{ mb: 3 }}>
+                <Typography variant="h6" gutterBottom fontWeight="600">
+                  Conductividad Eléctrica del Suelo
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Medición en µS/cm (microsiemens por centímetro)
+                </Typography>
+              </Box>
+              
+              {conductividadSuelo.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={conductividadSuelo}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis 
+                      dataKey="timestamp" 
+                      tick={{ fontSize: 10 }}
+                      angle={-45}
+                      textAnchor="end"
+                      stroke="#94a3b8"
+                      height={80}
+                      interval="preserveStartEnd"
+                    />
+                    <YAxis 
+                      tick={{ fontSize: 12 }}
+                      stroke="#94a3b8"
+                    />
+                    <Tooltip 
+                      contentStyle={{ 
+                        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '8px',
+                        boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
+                      }}
+                      labelFormatter={(value) => `Fecha: ${value}`}
+                    />
+                    <Legend />
+                    <Line 
+                      type="monotone" 
+                      dataKey="valor" 
+                      stroke="#8b5cf6" 
+                      strokeWidth={2}
+                      dot={false}
+                      name="Conductividad (µS/cm)"
                     />
                   </LineChart>
                 </ResponsiveContainer>

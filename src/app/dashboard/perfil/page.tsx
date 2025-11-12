@@ -21,6 +21,8 @@ import useAuth from '@/src/hooks/useAuth';
 import { userApi } from '@/src/lib/api';
 import { getErrorMessage } from '@/src/lib/utils';
 
+const Grid = (props: any) => <MuiGrid {...props} />;
+
 export default function PerfilPage() {
   const { user, loading } = useAuth();
   const [editing, setEditing] = useState(false);
