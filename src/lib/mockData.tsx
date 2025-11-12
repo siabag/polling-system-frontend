@@ -15,28 +15,32 @@ export const mockUsers: User[] = [
     nombre: 'Admin',
     apellido: 'Sistema',
     correo: 'admin@sistema.com',
-    rol: mockRoles[0].name
+    rol: mockRoles[0].name,
+    activo: true
   },
   {
     id: 2,
     nombre: 'Juan',
     apellido: 'Pérez',
     correo: 'juan@ejemplo.com',
-    rol: mockRoles[1].name
+    rol: mockRoles[1].name,
+    activo: true
   },
   {
     id: 3,
     nombre: 'María',
     apellido: 'López',
     correo: 'maria@ejemplo.com',
-    rol: mockRoles[2].name
+    rol: mockRoles[2].name,
+    activo: true
   },
   {
     id: 4,
     nombre: 'Carlos',
     apellido: 'González',
     correo: 'carlos@ejemplo.com',
-    rol: mockRoles[1].name
+    rol: mockRoles[1].name,
+    activo: true
   },
 ];
 
@@ -86,7 +90,8 @@ export const createUser = (userData: CreateUserData): User => {
     nombre: userData.firstName,
     apellido: userData.lastName,
     correo: userData.email,
-    rol: role.name
+    rol: role.name,
+    activo: true
   };
   
   // Agregar a la lista de usuarios
@@ -123,7 +128,8 @@ export const updateUser = (id: number, userData: UpdateUserData): User | null =>
     nombre: userData.firstName || user.nombre,
     apellido: userData.lastName || user.apellido,
     correo: userData.email || user.correo,
-    rol: updatedRole
+    rol: updatedRole,
+    activo: user.activo ?? true
   };
   
   // Reemplazar en la lista

@@ -27,6 +27,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PersonIcon from '@mui/icons-material/Person';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
+import type { User } from '@/src/types/auth';
 
 // Tipos
 interface EditUsuarioData {
@@ -390,7 +391,7 @@ export default function EditarUsuarioForm() {
   } = useUsers();
   
   // Estados
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<User | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   
@@ -444,12 +445,12 @@ export default function EditarUsuarioForm() {
         ]);
         
         if (userResponse) {
-          setUserData(userResponse);
+          setUserData(userResponse as User);
           resetPersonalForm({
             firstName: userResponse.nombre || '',
             lastName: userResponse.apellido || '',
             email: userResponse.correo || '',
-            roleId: userResponse.rol_id || 1,
+            roleId: 1,
             activo: userResponse.activo ?? true,
           });
         }
@@ -477,7 +478,7 @@ export default function EditarUsuarioForm() {
     
     if (result) {
       setSuccessMessage('Información actualizada correctamente');
-      setUserData(prev => ({ ...prev, ...result }));
+      setUserData(prev => (prev ? ({ ...prev, ...result } as User) : (result as User)));
     }
   });
 

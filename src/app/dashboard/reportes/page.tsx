@@ -19,7 +19,6 @@ import {
   TableBody,
   TextField,
   Button,
-  NoSsr,
 } from "@mui/material";
 // Usamos Box para layout responsive en lugar de Grid por conflictos de tipos.
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -69,8 +68,7 @@ export default function ReportesPage() {
   const rows: MonthlySummaryItem[] = useMemo(() => data?.summary || [], [data]);
 
   return (
-    <NoSsr>
-      <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
+    <Container maxWidth="xl" sx={{ mt: 2, mb: 4 }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           <Box>
             <Typography variant="h4" fontWeight={600} gutterBottom>
@@ -209,6 +207,5 @@ export default function ReportesPage() {
           </Box>
         </Box>
       </Container>
-    </NoSsr>
   );
 }

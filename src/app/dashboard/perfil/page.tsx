@@ -8,7 +8,6 @@ import {
   TextField, 
   Button, 
   Avatar,
-  Grid,
   Divider,
   Alert,
   Dialog,
@@ -160,8 +159,14 @@ export default function PerfilPage() {
               <Typography variant="h6">Información Personal</Typography>
             </Box>
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+            <Box
+              sx={{
+                display: 'grid',
+                gap: 2,
+                gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }
+              }}
+            >
+              <Box>
                 <TextField
                   fullWidth
                   label="Nombre"
@@ -170,8 +175,8 @@ export default function PerfilPage() {
                   disabled={!editing}
                   variant={editing ? 'outlined' : 'filled'}
                 />
-              </Grid>
-              <Grid item xs={12} sm={6}>
+              </Box>
+              <Box>
                 <TextField
                   fullWidth
                   label="Apellido"
@@ -180,8 +185,8 @@ export default function PerfilPage() {
                   disabled={!editing}
                   variant={editing ? 'outlined' : 'filled'}
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ gridColumn: '1 / -1' }}>
                 <TextField
                   fullWidth
                   label="Correo electrónico"
@@ -191,8 +196,8 @@ export default function PerfilPage() {
                   variant={editing ? 'outlined' : 'filled'}
                   type="email"
                 />
-              </Grid>
-              <Grid item xs={12}>
+              </Box>
+              <Box sx={{ gridColumn: '1 / -1' }}>
                 <TextField
                   fullWidth
                   label="Rol"
@@ -201,8 +206,8 @@ export default function PerfilPage() {
                   variant="filled"
                   helperText="El rol es asignado por un administrador"
                 />
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </Box>
 
           {/* Botones de acción */}
