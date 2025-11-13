@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   Box,
@@ -15,6 +16,7 @@ import {
 import {
   Refresh as RefreshIcon,
   FileDownload as FileDownloadIcon,
+  Assessment as AssessmentIcon,
 } from '@mui/icons-material';
 import { dataTTHApi } from '@/src/lib/apiDataTTH';
 import { DataPoint } from '@/src/types/dataTTH';
@@ -55,6 +57,7 @@ const exportToCSV = (data: any, filename: string) => {
 };
 
 const Dashboard = () => {
+  const router = useRouter();
   const [rangoFecha, setRangoFecha] = useState('ultimo-mes');
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
@@ -285,6 +288,15 @@ const Dashboard = () => {
                 sx={{ minWidth: 150 }}
               >
                 Descargar CSV
+              </Button>
+              <Button
+                variant="contained"
+                color="secondary"
+                startIcon={<AssessmentIcon />}
+                onClick={() => router.push('/dashboard/reportes')}
+                sx={{ minWidth: 150 }}
+              >
+                Ver Reportes
               </Button>
             </Box>
           </Box>
