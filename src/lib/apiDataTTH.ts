@@ -1,5 +1,5 @@
 // src/lib/apiDataTTH.ts
-import { DataTTHParams, DataTTHResponse } from '../types/dataTTH';
+import { DataTTHParams, DataTTHResponse, MonthlySummaryResponse } from '../types/dataTTH';
 import api from './api';
 
 
@@ -31,6 +31,22 @@ export const dataTTHApi = {
       const response = await api.get(`/api/data_tth/export?format=${format}`, {
         params: cleanParams,
         responseType: 'blob'
+      });
+      
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getMonthlySummary: async (params?: Record<string, string>): Promise<MonthlySummaryResponse> => {
+    try {
+      const cleanParams = params ? Object.fromEntries(
+        Object.entries(params).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      ) : {};
+      
+      const response = await api.get<MonthlySummaryResponse>('/api/data_tth/monthly_summary', { 
+        params: cleanParams 
       });
       
       return response.data;
