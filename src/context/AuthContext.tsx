@@ -6,7 +6,6 @@ import {
   AuthState, 
   AuthCredentials, 
   LoginResponse, 
-  RegisterUserData,
   User
 } from '../types/auth';
 import { authApi } from '../lib/api';
@@ -24,7 +23,6 @@ const initialState: AuthState = {
 export const AuthContext = createContext<AuthContextType>({
   ...initialState,
   login: async () => {},
-  register: async () => {},
   logout: () => {},
   resetPassword: async () => {},
   clearErrors: () => {},
@@ -33,7 +31,6 @@ export const AuthContext = createContext<AuthContextType>({
 // Tipos de acciones para el reducer
 type AuthAction =
   | { type: 'LOGIN_SUCCESS'; payload: { user: User | undefined } }
-  | { type: 'REGISTER_SUCCESS' }
   | { type: 'AUTH_ERROR'; payload: string }
   | { type: 'USER_LOADED'; payload: User }
   | { type: 'LOGOUT' }
@@ -50,12 +47,6 @@ const authReducer = (state: AuthState, action: AuthAction): AuthState => {
         ...state,
         isAuthenticated: true,
         user: action.payload.user || null,
-        loading: false,
-        error: null,
-      };
-    case 'REGISTER_SUCCESS':
-      return {
-        ...state,
         loading: false,
         error: null,
       };
@@ -140,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.log("Current path:", path);
       
       // Si estamos autenticados pero en una página de acceso público
-      if (state.isAuthenticated && (path === '/login' || path === '/register')) {
+      if (state.isAuthenticated && path === '/login') {
         console.log("Authenticated user in public page, redirecting to dashboard");
         setTimeout(() => {
           router.replace('/dashboard');
@@ -169,21 +160,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   router.replace('/dashboard');
     } catch (error) {
       console.error("Login error:", error);
-      dispatch({ type: 'AUTH_ERROR', payload: getErrorMessage(error) });
-    }
-  };
-
-  // Función para registrar un nuevo usuario
-  const register = async (userData: RegisterUserData) => {
-    try {
-      dispatch({ type: 'SET_LOADING', payload: true });
-      
-      await authApi.register(userData);
-      dispatch({ type: 'REGISTER_SUCCESS' });
-      
-      // Redirigir a la página de login después del registro exitoso
-      router.push('/login?registered=true');
-    } catch (error) {
       dispatch({ type: 'AUTH_ERROR', payload: getErrorMessage(error) });
     }
   };
@@ -226,7 +202,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         ...state,
         login,
-        register,
         logout,
         resetPassword,
         clearErrors,

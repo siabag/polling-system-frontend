@@ -4,6 +4,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import useUsers from '@/src/hooks/useUsers';
 import useAuth from '@/src/hooks/useAuth';
+import { User } from '@/src/types/auth';
 import {
   Box,
   Paper,
@@ -390,7 +391,7 @@ export default function EditarUsuarioForm() {
   } = useUsers();
   
   // Estados
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<User | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState('');
   
@@ -445,11 +446,13 @@ export default function EditarUsuarioForm() {
         
         if (userResponse) {
           setUserData(userResponse);
+          // Find role ID from roles array based on role name
+          const userRole = rolesResponse?.find((role:any) => role.nombre === userResponse.rol);
           resetPersonalForm({
             firstName: userResponse.nombre || '',
             lastName: userResponse.apellido || '',
             email: userResponse.correo || '',
-            roleId: userResponse.rol_id || 1,
+            roleId: userRole?.id || 1,
             activo: userResponse.activo ?? true,
           });
         }
@@ -477,7 +480,7 @@ export default function EditarUsuarioForm() {
     
     if (result) {
       setSuccessMessage('Información actualizada correctamente');
-      setUserData(prev => ({ ...prev, ...result }));
+      setUserData(prev => prev ? { ...prev, ...result } : result);
     }
   });
 
@@ -542,7 +545,7 @@ export default function EditarUsuarioForm() {
           Volver
         </Button>
         <Typography variant="h4" component="h1" fontWeight="600">
-          Editar Usuario: {userData.nombre} {userData.apellido}
+          Editar Usuario: {userData?.nombre} {userData?.apellido}
         </Typography>
       </Box>
       

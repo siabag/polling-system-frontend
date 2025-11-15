@@ -10,7 +10,7 @@ import {
   Paper, 
   Avatar,
   CircularProgress,
-  Grid,
+  Grid as MuiGrid,
   Card,
   CardActionArea,
   CardContent,
@@ -22,6 +22,7 @@ import {
   BarChart as MonitorIcon,
 } from '@mui/icons-material';
 
+const Grid = (props: any) => <MuiGrid {...props} />;
 const DashboardPage = () => {
   const { user, isAuthenticated, loading, logout } = useAuth();
   const router = useRouter();

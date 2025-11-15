@@ -223,21 +223,7 @@ const LoginForm = () => {
             {loading ? <CircularProgress size={24} color="inherit" /> : 'Iniciar sesión'}
           </Button>
 
-          <Divider sx={{ my: 3 }}>
-            <Typography variant="body2" color="text.secondary">
-              ¿No tienes cuenta?
-            </Typography>
-          </Divider>
-
-          <Button
-            component="a"
-            href="/register"
-            fullWidth
-            variant="outlined"
-            sx={{ mt: 1 }}
-          >
-            Registrarse
-          </Button>
+          {/* Registro deshabilitado: se elimina el CTA de crear cuenta */}
         </Box>
       </Paper>
       
