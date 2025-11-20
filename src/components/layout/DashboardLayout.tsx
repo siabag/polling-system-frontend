@@ -44,6 +44,7 @@ import {
   ExpandMore,
   ChevronLeft as ChevronLeftIcon,
   Agriculture as AgricultureIcon,
+  Search,
 } from '@mui/icons-material';
 
 interface DashboardLayoutProps {
@@ -297,21 +298,38 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         {/* Otros items sin submenú */}
         {[
-          { text: 'Modelos Predictivos', icon: <AssessmentIcon /> },
-          { text: 'Identificación de plagas', icon: <TerrainIcon /> },
-          { text: 'Sistema de Alertas', icon: <AssignmentIcon /> },
-        ].map((item) => (
-           <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
-            <Tooltip title={!drawerOpen ? item.text : ''} placement="right">
-              <ListItemButton sx={{ minHeight: 48, justifyContent: drawerOpen ? 'initial' : 'center', px: 2.5, py: 1.5, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }}>
-                <ListItemIcon sx={{ minWidth: 0, mr: drawerOpen ? 3 : 'auto', justifyContent: 'center', color: primaryColor }}>
-                  {item.icon}
-                </ListItemIcon>
-                <ListItemText primary={item.text} sx={{ opacity: drawerOpen ? 1 : 0 }} />
-              </ListItemButton>
-            </Tooltip>
-          </ListItem>
-        ))}
+  { text: 'Modelos Predictivos', icon: <AssessmentIcon /> },
+  { text: 'Identificación de plagas', icon: <TerrainIcon /> },
+  { text: 'Sistema de Alertas', icon: <AssignmentIcon /> },
+  { text: 'Clasificación de hojas', icon: <Search />, path: '/dashboard/clasificacion' }
+].map((item) => (
+  <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
+    <Tooltip title={!drawerOpen ? item.text : ''} placement="right">
+      <ListItemButton
+        onClick={() => item.path && handleNavigate(item.path)} // ✅ se agregó esta línea
+        sx={{
+          minHeight: 48,
+          justifyContent: drawerOpen ? 'initial' : 'center',
+          px: 2.5,
+          py: 1.5,
+          '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR },
+        }}
+      >
+        <ListItemIcon
+          sx={{
+            minWidth: 0,
+            mr: drawerOpen ? 3 : 'auto',
+            justifyContent: 'center',
+            color: primaryColor,
+          }}
+        >
+          {item.icon}
+        </ListItemIcon>
+        <ListItemText primary={item.text} sx={{ opacity: drawerOpen ? 1 : 0 }} />
+      </ListItemButton>
+    </Tooltip>
+  </ListItem>
+))}
 
         {/* Administración */}
         {isAdmin && (
