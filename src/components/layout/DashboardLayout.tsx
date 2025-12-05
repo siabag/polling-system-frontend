@@ -297,13 +297,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
         {/* Otros items sin submenú */}
         {[
-          { text: 'Modelos Predictivos', icon: <AssessmentIcon /> },
-          { text: 'Identificación de plagas', icon: <TerrainIcon /> },
-          { text: 'Sistema de Alertas', icon: <AssignmentIcon /> },
+          { text: 'Modelos Predictivos', icon: <AssessmentIcon />, path: '/dashboard/modelos' },
+          { text: 'Identificación de plagas', icon: <TerrainIcon />, path: '/dashboard/plagas' },
+          { text: 'Sistema de Alertas', icon: <AssignmentIcon />, path: '/dashboard/alertas' },
+          { text: 'Reportes', icon: <AssessmentIcon />, path: '/dashboard/reportes' },
         ].map((item) => (
            <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <Tooltip title={!drawerOpen ? item.text : ''} placement="right">
-              <ListItemButton sx={{ minHeight: 48, justifyContent: drawerOpen ? 'initial' : 'center', px: 2.5, py: 1.5, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }}>
+              <ListItemButton onClick={() => handleNavigate(item.path)} sx={{ minHeight: 48, justifyContent: drawerOpen ? 'initial' : 'center', px: 2.5, py: 1.5, '&:hover': { backgroundColor: SIDEBAR_HOVER_COLOR } }}>
                 <ListItemIcon sx={{ minWidth: 0, mr: drawerOpen ? 3 : 'auto', justifyContent: 'center', color: primaryColor }}>
                   {item.icon}
                 </ListItemIcon>
