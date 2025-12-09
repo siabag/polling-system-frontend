@@ -1,5 +1,6 @@
 // src/lib/apiDataTTH.ts
 import { DataTTHParams, DataTTHResponse, MonthlySummaryResponse } from '../types/dataTTH';
+import { AlertsResponse } from '../types/alerts';
 import api from './api';
 
 
@@ -49,6 +50,19 @@ export const dataTTHApi = {
         params: cleanParams 
       });
       
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getAlerts: async (params?: DataTTHParams): Promise<AlertsResponse> => {
+    try {
+      const cleanParams = params ? Object.fromEntries(
+        Object.entries(params).filter(([_, value]) => value !== undefined && value !== null && value !== '')
+      ) : {};
+
+      const response = await api.get<AlertsResponse>('/api/data_tth/alerts', { params: cleanParams });
       return response.data;
     } catch (error) {
       throw error;
