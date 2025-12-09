@@ -58,7 +58,7 @@ const exportToCSV = (data: any, filename: string) => {
 
 const Dashboard = () => {
   const router = useRouter();
-  const [rangoFecha, setRangoFecha] = useState('ultimo-mes');
+  const [rangoFecha, setRangoFecha] = useState('ultimas-24h');
   const [fechaDesde, setFechaDesde] = useState('');
   const [fechaHasta, setFechaHasta] = useState('');
   const [loading, setLoading] = useState(false);
@@ -71,13 +71,13 @@ const Dashboard = () => {
   const [humedadSuelo, setHumedadSuelo] = useState<any[]>([]);
   const [conductividadSuelo, setConductividadSuelo] = useState<any[]>([]);
 
-  // Inicializar fechas por defecto
+  // Inicializar fechas por defecto (últimas 24 horas)
   useEffect(() => {
     const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
     
     setFechaHasta(today.toISOString().split('T')[0]);
-    setFechaDesde(firstDayOfMonth.toISOString().split('T')[0]);
+    setFechaDesde(yesterday.toISOString().split('T')[0]);
   }, []);
 
   // Cargar datos solo cuando cambia el rango predefinido
