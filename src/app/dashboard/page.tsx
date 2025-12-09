@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { 
   AddCircleOutline as AddIcon, 
-  ListAlt as ListIcon, 
+  Assignment as AlertIcon, 
   Assessment as ReportIcon,
   BarChart as MonitorIcon,
 } from '@mui/icons-material';
@@ -67,10 +67,10 @@ const DashboardPage = () => {
       path: '/dashboard/encuestas/nueva',
     },
     {
-      title: 'Mis Encuestas',
-      description: 'Revisa y gestiona tus encuestas completadas.',
-      icon: <ListIcon sx={{ fontSize: 40, color: 'primary.main' }} />,
-      path: '/dashboard/encuestas',
+      title: 'Alertas',
+      description: 'Consulta alertas y notificaciones del sistema.',
+      icon: <AlertIcon sx={{ fontSize: 40, color: 'warning.main' }} />,
+      path: '/dashboard/alertas',
     },
     {
       title: 'Monitoreo',
@@ -134,7 +134,7 @@ const DashboardPage = () => {
           </Box>
           <Grid container spacing={3} justifyContent="center">
             {actions.map((action, index) => (
-              <Grid item xs={12} sm={6} md={3} key={index}>
+              <Grid item xs={12} sm={6} md={6} key={index}>
                 <Card 
                   sx={{ 
                     height: '100%',

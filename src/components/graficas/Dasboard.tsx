@@ -17,6 +17,7 @@ import {
   Refresh as RefreshIcon,
   FileDownload as FileDownloadIcon,
   Assessment as AssessmentIcon,
+  Assignment as AssignmentIcon,
 } from '@mui/icons-material';
 import { dataTTHApi } from '@/src/lib/apiDataTTH';
 import { DataPoint } from '@/src/types/dataTTH';
@@ -297,6 +298,15 @@ const Dashboard = () => {
                 sx={{ minWidth: 150 }}
               >
                 Ver Reportes
+              </Button>
+              <Button
+                variant="contained"
+                color="warning"
+                startIcon={<AssignmentIcon />}
+                onClick={() => router.push('/dashboard/alertas')}
+                sx={{ minWidth: 150 }}
+              >
+                Ver Alertas
               </Button>
             </Box>
           </Box>

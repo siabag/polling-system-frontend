@@ -240,9 +240,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       </DrawerHeader>
       <Divider sx={{ borderColor: SIDEBAR_DIVIDER_COLOR }} />
       <List sx={{ color: 'white', flexGrow: 1 }}>
-        {[
+        {[ 
           { text: 'Inicio', icon: <DashboardIcon />, path: '/dashboard' },
           { text: 'Monitoreo en tiempo real', icon: <AssessmentIcon />, path: '/dashboard/monitoreo' },
+          { text: 'Modelos Predictivos', icon: <AssessmentIcon />, path: '/dashboard/modelos' },
+          { text: 'Sistema de Alertas', icon: <AssignmentIcon />, path: '/dashboard/alertas' },
+          { text: 'Identificación de plagas', icon: <CategoryIcon />, path: '/dashboard/plagas' },
+          { text: 'Reportes', icon: <ListIcon />, path: '/dashboard/reportes' },
         ].map((item) => (
           <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <Tooltip title={!drawerOpen ? item.text : ''} placement="right">
