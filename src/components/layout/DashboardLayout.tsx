@@ -44,6 +44,7 @@ import {
   ExpandMore,
   ChevronLeft as ChevronLeftIcon,
   Agriculture as AgricultureIcon,
+  Search,
 } from '@mui/icons-material';
 
 interface DashboardLayoutProps {
@@ -298,7 +299,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </ListItemButton>
           </List>
         </Collapse>
-
+        
         {/* Administración */}
         {isAdmin && (
           <>
