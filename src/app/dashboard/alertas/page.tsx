@@ -62,12 +62,16 @@ const AlertasPage = () => {
 
   useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  // Carga automática de las últimas 24h al montar
+  useEffect(() => {
     if (!isClient) return;
     const today = new Date();
     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
     setFechaHasta(today.toISOString().split('T')[0]);
     setFechaDesde(yesterday.toISOString().split('T')[0]);
-    // Cargar alertas automáticamente al montar
+
     fetchAlerts({
       start_date: yesterday.toISOString().split('T')[0],
       end_date: today.toISOString().split('T')[0],
