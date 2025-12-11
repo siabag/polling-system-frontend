@@ -24,18 +24,20 @@ import { DataPoint } from '@/src/types/dataTTH';
 
 // Función para formatear datos de la API al formato del gráfico
 const formatDataForChart = (dataPoints: DataPoint[]) => {
-  return dataPoints.map(point => {
+  return dataPoints.map((point) => {
     const date = new Date(point.fecha_hora);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    
+    const timestamp = date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
     return {
-      timestamp: `${day}/${month}/${year} ${hours}:${minutes}`,
+      timestamp,
       fullDate: point.fecha_hora,
-      valor: point.valor
+      valor: point.valor,
     };
   });
 };
@@ -64,6 +66,7 @@ const Dashboard = () => {
   const [fechaHasta, setFechaHasta] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
   
   // Estados para los datos de cada métrica
   const [temperaturaAmbiente, setTemperaturaAmbiente] = useState<any[]>([]);
@@ -72,23 +75,35 @@ const Dashboard = () => {
   const [humedadSuelo, setHumedadSuelo] = useState<any[]>([]);
   const [conductividadSuelo, setConductividadSuelo] = useState<any[]>([]);
 
-  // Inicializar fechas por defecto (últimas 24 horas)
+  // Marcar cliente
   useEffect(() => {
-    const today = new Date();
-    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-    
-    setFechaHasta(today.toISOString().split('T')[0]);
-    setFechaDesde(yesterday.toISOString().split('T')[0]);
+    setIsClient(true);
   }, []);
 
-  // Cargar datos solo cuando cambia el rango predefinido
+  // Inicializar fechas por defecto (últimas 24 horas) y cargar datos al montar
   useEffect(() => {
-    if (fechaDesde && fechaHasta && rangoFecha !== 'personalizado') {
-      loadData();
-    }
-  }, [rangoFecha]);
+    if (!isClient) return;
 
-  const loadData = async () => {
+    const today = new Date();
+    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    setFechaHasta(today.toISOString().split('T')[0]);
+    setFechaDesde(yesterday.toISOString().split('T')[0]);
+
+    // Carga automática inicial
+    loadData('init');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClient]);
+
+  // Cargar datos cuando cambia el rango predefinido
+  useEffect(() => {
+    if (!isClient) return;
+    if (fechaDesde && fechaHasta && rangoFecha !== 'personalizado') {
+      loadData('range-change');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangoFecha, fechaDesde, fechaHasta, isClient]);
+
+  const loadData = async (_origin?: string) => {
     try {
       setLoading(true);
       setError(null);
